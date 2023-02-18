@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.scss": "scss",
+        "*.yaml": "arduino-output",
+        "type_traits": "cpp"
+    }
+}
