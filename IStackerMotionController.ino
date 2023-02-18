@@ -1,239 +1,37 @@
-#include <Arduino.h>
-#include "./src/mkZoeRobotics_globalDataStruct.h"
-#include "./src/mkZoeRobotics_define.h"
-#include "./src/test.h"
+#include "./src/main.h"
 #include "./src/due_can.h"
 #include "./src/mkCANEncoder.h"
 #include "./src/mkZoeRobotics_velProfile.h"
 #include "./src/mkZoeRobotics_command.h"
-int arrivingdatabyte = 0;
-Test gTest;
+
 #define ENCODER_CONVERSION 0.087890625 // 1//4096.0*360.0
 
-extern mkCANEncoder mkCAN;
-POSData posData[MAX_MOTOR_NUM]; // [X, R1, R2, Z]
-SPEEDRampData speedData[MAX_MOTOR_NUM];
+int arrivingdatabyte = 0;
+char str[128];
+// int motorID = 0;
+
+// static volatile bool bCupDropSignal = false;
+// static int cupSWDelayTime = 25;
+
+// volatile char reportSteps[128];
+// volatile uint8_t statusHomeSW[MAX_MOTOR_NUM] = {0};
+// volatile uint8_t statusHoming[MAX_MOTOR_NUM] = {0};
+
+SERIAL_BUFFER_DATA serialSendBuf;
+JOBSTATUS jobStatus;
+
+extern POSData posData[MAX_MOTOR_NUM]; // [X, R1, R2, Z]
+extern SPEEDRampData speedData[MAX_MOTOR_NUM];
+extern KIN_DATA kinData[MAX_MOTOR_NUM];
+extern MOTORCHANEL motorCh[MAX_MOTOR_NUM];
+
 extern MKVelProfile mkVelProfile;
-////////////////////////////////////////////////////////
-// Handling Velocity Profile
-void init_interrupt()
-{
-  pmc_enable_periph_clk(ID_PIOA);
-  NVIC_DisableIRQ(PIOA_IRQn);
-  // NVIC_ClearPendingIRQ(PIOA_IRQn);
-  // NVIC_SetPriority(PIOA_IRQn, 0);
-  // NVIC_EnableIRQ(PIOA_IRQn);
+extern MKCommand mkCommand;
+extern mkCANEncoder mkCAN;
 
-  pmc_enable_periph_clk(ID_PIOB);
-  NVIC_DisableIRQ(PIOB_IRQn);
-  // NVIC_ClearPendingIRQ(PIOB_IRQn);
-  // NVIC_SetPriority(PIOB_IRQn, 0);
-  // NVIC_EnableIRQ(PIOB_IRQn);
+extern MKVelProfile mkVelProfile;
 
-  pmc_enable_periph_clk(ID_PIOC);
-  NVIC_DisableIRQ(PIOC_IRQn);
-  // NVIC_ClearPendingIRQ(PIOC_IRQn);
-  // NVIC_SetPriority(PIOC_IRQn, 0);
-  // NVIC_EnableIRQ(PIOC_IRQn);
-
-  pmc_enable_periph_clk(ID_PIOD);
-  NVIC_DisableIRQ(PIOD_IRQn);
-  // NVIC_ClearPendingIRQ(PIOD_IRQn);
-  // NVIC_SetPriority(PIOD_IRQn, 0);
-  // NVIC_EnableIRQ(PIOD_IRQn);
-}
-void startTimer(int nTC, int prescale, uint32_t frequency)
-{
-
-  Tc *tc = NULL;
-  uint32_t channel = 0;
-  IRQn_Type irq = TC0_IRQn;
-  stopTimer(nTC);
-  // speedData[nTC].reset();
-  // posData[nTC].reset();
-  switch (nTC)
-  {
-  case 0:
-    tc = TC0;
-    channel = 0;
-    irq = TC0_IRQn;
-    break;
-  case 1:
-    tc = TC0;
-    channel = 1;
-    irq = TC1_IRQn;
-    break;
-  case 2:
-    tc = TC0;
-    channel = 2;
-    irq = TC2_IRQn;
-    break;
-  case 3:
-    tc = TC1;
-    channel = 0;
-    irq = TC3_IRQn;
-    break;
-  case 4:
-    tc = TC1;
-    channel = 1;
-    irq = TC4_IRQn;
-    break;
-  case 5:
-    tc = TC1;
-    channel = 2;
-    irq = TC5_IRQn;
-    break;
-  case 6:
-    tc = TC2;
-    channel = 0;
-    irq = TC6_IRQn;
-    break;
-  case 7:
-    tc = TC2;
-    channel = 1;
-    irq = TC7_IRQn;
-    break;
-  case 8:
-    tc = TC2;
-    channel = 2;
-    irq = TC8_IRQn;
-    break;
-  default:
-    return;
-  }
-  pmc_set_writeprotect(false);
-  pmc_enable_periph_clk((uint32_t)irq);
-  // TC_Configure(tc, channel,  TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK2 | TC_CMR_ACPC_CLEAR | TC_CMR_ASWTRG_CLEAR);//  | TC_CMR_CPCSTOP);
-  if (prescale == 2)
-    TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
-  else if (prescale == 8)
-    TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK2);
-  else if (prescale == 32)
-    TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK3);
-  else if (prescale == 128)
-    TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK4);
-
-  uint32_t rc = F_CPU / (prescale * frequency); // frequency
-  // TC_SetRA(tc, channel, rc);
-  TC_SetRC(tc, channel, rc);
-
-  tc->TC_CHANNEL[channel].TC_IER = TC_IER_CPCS;
-  tc->TC_CHANNEL[channel].TC_IDR = ~TC_IER_CPCS;
-  NVIC_ClearPendingIRQ(irq);
-  NVIC_SetPriority(irq, 2);
-  NVIC_EnableIRQ(irq);
-  TC_Start(tc, channel);
-}
-
-void stopTimer(int nTC)
-{
-  Tc *tc = TC0;
-  uint32_t channel = 0;
-  IRQn_Type irq = TC0_IRQn;
-  switch (nTC)
-  {
-  case 0:
-    tc = TC0;
-    channel = 0;
-    irq = TC0_IRQn;
-    break;
-  case 1:
-    tc = TC0;
-    channel = 1;
-    irq = TC1_IRQn;
-    break;
-  case 2:
-    tc = TC0;
-    channel = 2;
-    irq = TC2_IRQn;
-    break;
-  case 3:
-    tc = TC1;
-    channel = 0;
-    irq = TC3_IRQn;
-    break;
-  case 4:
-    tc = TC1;
-    channel = 1;
-    irq = TC4_IRQn;
-    break;
-  case 5:
-    tc = TC1;
-    channel = 2;
-    irq = TC5_IRQn;
-    break;
-  case 6:
-    tc = TC2;
-    channel = 0;
-    irq = TC6_IRQn;
-    break;
-  case 7:
-    tc = TC2;
-    channel = 1;
-    irq = TC7_IRQn;
-    break;
-  default:
-    return;
-  }
-  NVIC_DisableIRQ(irq);
-  TC_Stop(tc, channel);
-  // if(n>=0 && n<4) reportStatus(n);
-}
-void rebootTimers()
-{
-  for (int i = 0; i < 4; i++)
-  {
-    // speedData[i].reset();
-    // posData[i].reset();
-  }
-  startTimer(0, TICK_PRESCALE, 340); // Z
-  startTimer(1, TICK_PRESCALE, 340); // X
-  startTimer(2, TICK_PRESCALE, 340); // Q
-  startTimer(3, TICK_PRESCALE, 340); // R
-  // startTimer(4,2,30000); //pulse
-  //  startTimer(4,2,100000); //pulse
-}
-
-void stopTimer0()
-{
-  Tc *tc = TC0;
-  uint32_t channel = 0;
-  IRQn_Type irq = TC0_IRQn;
-  NVIC_DisableIRQ(irq);
-  TC_Stop(tc, channel);
-}
-void stopTimer1()
-{
-  Tc *tc = TC0;
-  uint32_t channel = 1;
-  IRQn_Type irq = TC1_IRQn;
-  NVIC_DisableIRQ(irq);
-  TC_Stop(tc, channel);
-}
-void stopTimer2()
-{
-  Tc *tc = TC0;
-  uint32_t channel = 2;
-  IRQn_Type irq = TC2_IRQn;
-  NVIC_DisableIRQ(irq);
-  TC_Stop(tc, channel);
-}
-void stopTimer3()
-{
-  Tc *tc = TC1;
-  uint32_t channel = 0;
-  IRQn_Type irq = TC3_IRQn;
-  NVIC_DisableIRQ(irq);
-  TC_Stop(tc, channel);
-}
-void stopTimer4()
-{
-  Tc *tc = TC1;
-  uint32_t channel = 1;
-  IRQn_Type irq = TC4_IRQn;
-  NVIC_DisableIRQ(irq);
-  TC_Stop(tc, channel);
-}
+MainOperation mkMainOperation;
 
 void TC0_Handler_84() // 0: X-Axis
 {
@@ -334,7 +132,7 @@ void tc_setup()
   TC2->TC_CHANNEL[2].TC_CCR = TC_CCR_SWTRG | TC_CCR_CLKEN; // Software trigger TC2 counter and enable
 }
 //--------------------------------------------------------------
-char str[128];
+
 void TC0_Handler_1sec() // 0: X-Axis
 {
   volatile static uint32_t Count = 0;
@@ -394,7 +192,7 @@ void TC0_Handler_test()
 
   PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
   speedData[0].pulseTick = true;
-  startTimer(0 + 4, TICK_PRESCALE, 100000);
+  mkMainOperation.startTimer(0 + 4, TICK_PRESCALE, 100000);
 
   // if (Count0 == 0)
   //   TC0->TC_CHANNEL[0].TC_RC = 656250 * 2;
@@ -410,15 +208,9 @@ void TC0_Handler_test()
 uint32_t CountTime = 0;
 void TC0_Handler() // 0: X-Axis
 {
-  // volatile static uint32_t Count = 0;
-  // volatile static uint32_t CountStop = 0;
   volatile static int8_t prev_dir = 0;
   int mID = 0;
-  ////////////////////////////////////////////////
-  // TC_GetStatus(TC0, 0);
 
-  // TC_SetRC(TC0, 0, 42);
-  // Maximum Speed to handle in interrupt 0.5MHz (84 counts)
   TC0->TC_CHANNEL[0].TC_SR;
   // TC0->TC_CHANNEL[0].TC_RC = 420; // 8485: (10microSec)
   // ...CLEAR TC STATUS REGISTER...
@@ -429,7 +221,6 @@ void TC0_Handler() // 0: X-Axis
 
     if (prev_dir != speedData[mID].dir)
     {
-
       prev_dir = speedData[mID].dir;
       if (speedData[mID].dir == 0x1)
         PIOD->PIO_SODR = 1u << 7; // PIN11 (high)
@@ -438,23 +229,25 @@ void TC0_Handler() // 0: X-Axis
 
       // ++ Between changing direction and pulse we need 10msec interval.
       TC0->TC_CHANNEL[0].TC_RC = 7; // about 10msec
-      // sprintf(str, "count=%d, %d, %d", speedData[mID].step_count, prev_dir, speedData[mID].dir);
-      // Serial.println(str);
       return;
     }
-
-    // TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
     if (speedData[mID].step_count == speedData[mID].totalSteps)
     {
+      sprintf(str, "cnt=%d, %d, %d", speedData[0].step_count, speedData[mID].Nac, millis() - CountTime);
+      Serial.println(str);
 
+      speedData[mID].step_count = 0;
+      mkMainOperation.processFinishingMove(mID);
+      /*
       sprintf(str, "cnt=%d, %d, %d", speedData[0].step_count, speedData[mID].Nac, millis() - CountTime);
       Serial.println(str);
       TC0->TC_CHANNEL[0].TC_RC = speedData[0].Cn;
       // ... FINISHED SPEED PROFILE AND NOTIFY IN MAIN LOOP...
       speedData[mID].step_count = 0;
-      // processFinishingMove(mID);
+      mkMainOperation.processFinishingMove(mID);
       speedData[mID].reset();
       posData[mID].OperationMode = JOB_DONE;
+      */
 
       return;
     }
@@ -467,7 +260,7 @@ void TC0_Handler() // 0: X-Axis
       CountTime = millis();
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       // -- Pulse --
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
       return;
@@ -487,7 +280,7 @@ void TC0_Handler() // 0: X-Axis
       // speedData[mID].step_count++;
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       // -- Pulse --
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
       return;
@@ -501,7 +294,7 @@ void TC0_Handler() // 0: X-Axis
       // speedData[mID].step_count++;
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       // -- Pulse --
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
       return;
@@ -539,7 +332,7 @@ void TC0_Handler() // 0: X-Axis
       // speedData[mID].step_count++;
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       // -- Pulse --
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
 
@@ -564,7 +357,7 @@ void TC4_Handler()
     PIOC->PIO_ODSR = 0 << 22; // PIN8
     posData[mID].abs_step_pos += speedData[mID].dir;
   }
-  stopTimer(4);
+  mkMainOperation.stopTimer(4);
 }
 void TC8_Handler()
 {

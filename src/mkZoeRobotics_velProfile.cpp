@@ -14,13 +14,11 @@
 MKVelProfile mkVelProfile;
 // extern volatile int8_t activatedEE;
 // extern // mkSerial // mkSerial;
+
 extern SPEEDRampData speedData[MAX_MOTOR_NUM];
 extern KIN_DATA kinData[3];
 extern MOTORCHANEL motorCh[3];
-extern unsigned long elapsedTime[MAX_MOTOR_NUM];
-extern volatile uint32_t gIRQ_step_count[MAX_MOTOR_NUM];
-extern volatile uint16_t gIRQ_flag[MAX_MOTOR_NUM];
-// static  double DIST2STEP[4]={16.0*2.0, 2291.83*2, 763.944*4.0,80.0}; //[X, R1, R2, Z]
+
 static double DIST2STEP[4] = {16.0 * 2.0, 2291.83 * 2, 763.944 * 4.0, 32.0};                                   //[X, R1, R2, Z]
 static double STEP2DIST[4] = {1.0 / DIST2STEP[0], 1.0 / DIST2STEP[1], 1.0 / DIST2STEP[2], 1.0 / DIST2STEP[3]}; //[X, R1, R2, Z]
 
