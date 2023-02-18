@@ -1,6 +1,6 @@
 {
     "board": "arduino:sam:arduino_due_x_dbg",
-    "sketch": "ArduinoDue.ino",
+    "sketch": "IStackerMotionController.ino",
     "output": "./build",
     "debugger": "jlink",
     "port": "/dev/tty.usbmodem14101"

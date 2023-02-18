@@ -1,10 +1,11 @@
 #include <Arduino.h>
-#include "./src/mkZoeRobotics_globalDataStruct.h"
-#include "./src/mkZoeRobotics_define.h"
-#include "./src/test.h"
-#include "./src/due_can.h"
-#include "./src/mkCANEncoder.h"
-#include "./src/mkZoeRobotics_velProfile.h"
+#include "../src/mkZoeRobotics_globalDataStruct.h"
+#include "../src/mkZoeRobotics_define.h"
+#include "../src/test.h"
+#include "../src/due_can.h"
+#include "../src/mkCANEncoder.h"
+#include "../src/mkZoeRobotics_velProfile.h"
+#include "../src/mkZoeRobotics_command.h"
 int arrivingdatabyte = 0;
 Test gTest;
 #define ENCODER_CONVERSION 0.087890625 // 1//4096.0*360.0
