@@ -8,6 +8,7 @@
 #include "mkZoeRobotics_define.h"
 #include "mkZoeRobotics_command.h"
 #include "mkCANEncoder.h"
+#include "main.h"
 #ifndef min
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -17,12 +18,13 @@
 #endif
 
 MKCommand mkCommand;
+extern MainOperation mkMainOperation;
 extern int motorID;
 extern mkCANEncoder mkCAN;
-extern OP_MODE OperationMode;
-extern POSData posData[4];
-extern SPEEDRampData speedData[MAX_MOTOR_NUM];
-extern KIN_DATA kinData[3];
+// extern OP_MODE OperationMode;
+// extern POSData posData[4];
+// extern SPEEDRampData speedData[MAX_MOTOR_NUM];
+// extern KIN_DATA kinData[3];
 // extern  uint16_t gIRQ_TC_FLAG_DONE[MAX_MOTOR_NUM] ;
 extern SERIAL_BUFFER_DATA serialSendBuf;
 extern unsigned long elapsedTime[MAX_MOTOR_NUM];
@@ -30,24 +32,24 @@ extern unsigned long elapsedTime[MAX_MOTOR_NUM];
 extern int8_t isAnyMotion;
 extern JOBSTATUS jobStatus;
 
-extern uint8_t getHomeSWStatus();
-extern uint8_t getStatusHoming();
-extern void setStatusHoming(uint8_t val);
-extern void reportACK(int codeValue, int mID, int errorCode = 0);
-extern void reportStatus(int codeValue, int mID);
-extern void reportAllPosStatus(int respCode, int codeValue);
-extern void reportGenKinDataStatus(int RC, int codeValue, int rev);
-extern void startTimer(int n, int prescale, uint32_t frequency);
-extern void rebootTimers();
-extern void stopTimer(int n);
-extern void stopMotionAll();
-extern void stopMotion(int id);
-extern void resetElapsedTime();
-extern void resetElapsedTime(int ch);
-extern void controlPowerLine(bool bPowerOn);
-extern void controlZBrake(bool bBrakeOn);
-extern void delay(unsigned long ms);
-extern void controlDropCup(int delayTime);
+// extern uint8_t getHomeSWStatus();
+// extern uint8_t getStatusHoming();
+// extern void setStatusHoming(uint8_t val);
+// extern void reportACK(int codeValue, int mID, int errorCode = 0);
+// extern void reportStatus(int codeValue, int mID);
+// extern void reportAllPosStatus(int respCode, int codeValue);
+// extern void reportGenKinDataStatus(int RC, int codeValue, int rev);
+// extern void startTimer(int n, int prescale, uint32_t frequency);
+// extern void rebootTimers();
+// extern void stopTimer(int n);
+// extern void stopMotionAll();
+// extern void stopMotion(int id);
+// extern void resetElapsedTime();
+// extern void resetElapsedTime(int ch);
+// extern void controlPowerLine(bool bPowerOn);
+// extern void controlZBrake(bool bBrakeOn);
+// extern void delay(unsigned long ms);
+// extern void controlDropCup(int delayTime);
 void MKCommand::getCommand()
 {
   while (Serial.available() > 0 && buflen < BUFSIZE)
@@ -101,7 +103,7 @@ void MKCommand::getStartMove(int axis_sel)
       posData[i].CMDCode = 0;
       kinData[i].activated = true;
       // isAnyMotion++;
-      resetElapsedTime(i);
+      mkMainOperation.resetElapsedTime(i);
     }
     if (axis_sel & (1 << SM_Z)) //  Start Z-axis
     {
@@ -109,7 +111,7 @@ void MKCommand::getStartMove(int axis_sel)
       posData[3].CMDCode = 0;
       kinData[3].activated = true;
       // isAnyMotion++;
-      resetElapsedTime(3);
+      mkMainOperation.resetElapsedTime(3);
     }
   }
   ////////////////////////////////////
@@ -145,7 +147,7 @@ void MKCommand::getStartMove(int axis_sel)
         posData[i].OperationMode = MOVING;
         posData[i].CMDCode = 0;
         speedData[i].activated = true;
-        resetElapsedTime(i);
+        mkMainOperation.resetElapsedTime(i);
       }
     }
   } // -----else {
@@ -168,6 +170,7 @@ void MKCommand::process_commands()
   {
     int codeValue = (int)code_value();
     int selectedAxis = -1;
+
     switch (codeValue)
     {
     case SC_MOVE: // G0: Start Move
@@ -177,7 +180,7 @@ void MKCommand::process_commands()
         getStartMove(selectedAxis);
       }
 
-      reportACK(codeValue, selectedAxis);
+      mkMainOperation.reportACK(codeValue, selectedAxis);
       return;
     case SC_SET_SPEED: // G1: Set Speed Profile
 
@@ -189,7 +192,7 @@ void MKCommand::process_commands()
       {
         jobStatus.jobID = (int)code_value();
       }
-      resetElapsedTime(motorID);
+      mkMainOperation.resetElapsedTime(motorID);
       // if(posData[motorID].OperationMode !=JOB_DONE)
       //   return reportACK(codeValue, motorID, jobID, MOVING);//reportStatus(codeValue, motorID);
       posData[motorID].OperationMode = SET_SPEED;
@@ -199,32 +202,32 @@ void MKCommand::process_commands()
         posData[motorID].OperationMode = ERROR + SET_SPEED;
         // Serial.println("format should be: G17 S[steps] A[Na] C[Nac] D[Nd] T[time0] O[dir]");
       }
-      reportACK(codeValue, motorID, posData[motorID].OperationMode);
+      mkMainOperation.reportACK(codeValue, motorID, posData[motorID].OperationMode);
 
       return;
     case SC_GEN_EEMOTION:
     {
       int rev = get_gen_linear_motion_profile();
-      reportGenKinDataStatus(RC_STATUS_LINEAR, SC_GEN_EEMOTION, rev);
+      mkMainOperation.reportGenKinDataStatus(RC_STATUS_LINEAR, SC_GEN_EEMOTION, rev);
       return;
     }
     case SC_GEN_EEROTATION:
     {
       int rev = get_gen_EErotation_motion_profile();
-      reportGenKinDataStatus(RC_STATUS_EEROTATION, SC_GEN_EEROTATION, rev);
+      mkMainOperation.reportGenKinDataStatus(RC_STATUS_EEROTATION, SC_GEN_EEROTATION, rev);
 
       return;
     }
     case SC_GEN_CIRCLE:
     {
       int rev = get_gen_circular_motion_profile();
-      reportGenKinDataStatus(RC_STATUS_CIRCLE, SC_GEN_CIRCLE, rev);
+      mkMainOperation.reportGenKinDataStatus(RC_STATUS_CIRCLE, SC_GEN_CIRCLE, rev);
       return;
     }
     case SC_GEN_SPIRAL:
     {
       int rev = get_gen_spiral_motion_profile();
-      reportGenKinDataStatus(RC_STATUS_SPRIAL, SC_GEN_SPIRAL, rev);
+      mkMainOperation.reportGenKinDataStatus(RC_STATUS_SPRIAL, SC_GEN_SPIRAL, rev);
       return;
     }
     case SC_SETPOS: // G3: Set Position
@@ -244,25 +247,25 @@ void MKCommand::process_commands()
       {
         posData[3].abs_step_pos = (int32_t)code_value();
       }
-      reportACK(codeValue, 0);
+      mkMainOperation.reportACK(codeValue, 0);
       return;
     case SC_STOP: // G4: STOP immediatelty
-      stopMotionAll();
-      rebootTimers();
+      mkMainOperation.stopMotionAll();
+      mkMainOperation.rebootTimers();
       posData[motorID].OperationMode = JOB_DONE;
-      reportACK(codeValue, 0);
+      mkMainOperation.reportACK(codeValue, 0);
       return;
     case SC_TIME_DELAY_MC:
       if (code_seen('M'))
       {
         int ms = (uint32_t)code_value();
         Sleep(ms);
-        reportACK(codeValue, 0);
+        mkMainOperation.reportACK(codeValue, 0);
         return;
       }
       else
       {
-        reportACK(codeValue, motorID, ERROR_MISSING_M + SC_TIME_DELAY_MC);
+        mkMainOperation.reportACK(codeValue, motorID, ERROR_MISSING_M + SC_TIME_DELAY_MC);
       }
 
       return;
@@ -280,11 +283,11 @@ void MKCommand::process_commands()
           mkCAN.setZeroPos(1);
           posData[2].abs_step_pos = 0;
         }
-        reportACK(codeValue, 0);
+        mkMainOperation.reportACK(codeValue, 0);
       }
       else
       {
-        reportACK(codeValue, motorID, ERROR_MISSING_M + SC_SET_ZERO_ENCODER);
+        mkMainOperation.reportACK(codeValue, motorID, ERROR_MISSING_M + SC_SET_ZERO_ENCODER);
       }
 
       return;
@@ -299,7 +302,7 @@ void MKCommand::process_commands()
       }
       else
       {
-        reportACK(codeValue, motorID, ERROR_MISSING_M + SC_GET_ENCODER);
+        mkMainOperation.reportACK(codeValue, motorID, ERROR_MISSING_M + SC_GET_ENCODER);
       }
       return;
     case SC_HOMING: // G9: Homing Process
@@ -307,7 +310,7 @@ void MKCommand::process_commands()
         motorID = (uint32_t)code_value();
       else
       {
-        reportACK(codeValue, motorID, ERROR_MISSING_M + SC_HOMING);
+        mkMainOperation.reportACK(codeValue, motorID, ERROR_MISSING_M + SC_HOMING);
         return;
       }
       posData[motorID].CMDCode = codeValue;
@@ -315,46 +318,46 @@ void MKCommand::process_commands()
       {
         posData[motorID].OperationMode = HOMING;
         speedData[motorID].activated = true;
-        resetElapsedTime(motorID);
+        mkMainOperation.resetElapsedTime(motorID);
       }
       else
       {
-        reportACK(codeValue, motorID, ERROR + SC_HOMING);
+        mkMainOperation.reportACK(codeValue, motorID, ERROR + SC_HOMING);
       }
       return;
 
     case SC_STATUS: // G10: get Current Status
-      resetElapsedTime(motorID);
+      mkMainOperation.resetElapsedTime(motorID);
       if (code_seen('M'))
       {
         motorID = (int)code_value();
       }
       else
       {
-        reportACK(codeValue, motorID, ERROR_MISSING_M + SC_STATUS);
+        mkMainOperation.reportACK(codeValue, motorID, ERROR_MISSING_M + SC_STATUS);
         return;
       }
-      reportStatus(codeValue, motorID);
+      mkMainOperation.reportStatus(codeValue, motorID);
       return;
     case SC_STATUS_ALL_POS:
-      reportAllPosStatus(RC_STATUS_ALL_POS, codeValue);
+      mkMainOperation.reportAllPosStatus(RC_STATUS_ALL_POS, codeValue);
       return;
     case SC_UPDATE_MOTION:
-      reportAllPosStatus(RC_UPDATE_MOTION, codeValue);
+      mkMainOperation.reportAllPosStatus(RC_UPDATE_MOTION, codeValue);
       return;
     case SC_REBOOT: // Restart
-      rebootTimers();
-      reportACK(codeValue, 0);
+      mkMainOperation.rebootTimers();
+      mkMainOperation.reportACK(codeValue, 0);
       return;
 
     case SC_POWER: // CONTROL POWER ON/OFF
       if (code_seen('M'))
       {
-        controlPowerLine((bool)code_value());
+        mkMainOperation.controlPowerLine((bool)code_value());
       }
       else
       {
-        reportACK(codeValue, 0, ERROR_MISSING_M + SC_POWER);
+        mkMainOperation.reportACK(codeValue, 0, ERROR_MISSING_M + SC_POWER);
         return;
       }
 
@@ -374,11 +377,11 @@ void MKCommand::process_commands()
 
       if (code_seen('M'))
       {
-        controlDropCup(code_value());
+        mkMainOperation.controlDropCup(code_value());
       }
       else
       {
-        reportACK(codeValue, 0, ERROR_MISSING_M + SC_DROP_CUP);
+        mkMainOperation.reportACK(codeValue, 0, ERROR_MISSING_M + SC_DROP_CUP);
         return;
       }
       return;

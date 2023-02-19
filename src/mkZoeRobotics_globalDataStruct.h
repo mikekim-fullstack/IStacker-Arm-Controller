@@ -156,7 +156,10 @@ typedef struct _speedRampData
   //! What part of the speed ramp we are in.
   unsigned char run_state;
   //! Direction stepper motor should move.
-  volatile int8_t dir = 0; // 1:CCW, -1:CW
+  volatile int8_t dir = 0;     // 1:CCW, -1:CW
+  volatile int8_t prevDir = 0; // 1:CCW, -1:CW
+
+  uint32_t currentTime = 0;
 
   void reset()
   {

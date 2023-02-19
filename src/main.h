@@ -8,15 +8,15 @@ extern POSData posData[MAX_MOTOR_NUM]; // [X, R1, R2, Z]
 extern SPEEDRampData speedData[MAX_MOTOR_NUM];
 extern KIN_DATA kinData[MAX_MOTOR_NUM];
 extern MOTORCHANEL motorCh[MAX_MOTOR_NUM];
+extern OP_MODE OperationMode;
 
 extern SERIAL_BUFFER_DATA serialSendBuf;
 extern JOBSTATUS jobStatus;
-
+extern int motorID;
 class MainOperation
 {
 public:
-    int motorID = 0;
-    int cupSWDelayTime = 25;
+        int cupSWDelayTime = 25;
     volatile bool bCupDropSignal = false;
     unsigned long elapsedTime[MAX_MOTOR_NUM] = {0};
     portIOPair SSR_POWER;
@@ -35,7 +35,7 @@ public:
     MainOperation()
     {
     }
-
+    ////////////////////////////////////////////////////////////////////////
     void init_interrupt()
     {
         pmc_enable_periph_clk(ID_PIOA);
@@ -236,7 +236,7 @@ public:
         speedData[id].reset();
         kinData[id].reset();
     }
-    /////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
 
     void stopTimer0()
     {
@@ -391,7 +391,7 @@ public:
         }
     }
 
-    //////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
 
     void PIOB_Handler()
     {
@@ -444,8 +444,8 @@ public:
                 0, //(millis() - elapsedTime[mID]),
                 jobStatus.jobID, jobStatus.nSequence);
 
-        serialSendBuf.write(tmpBuffer);
-        // mkSerial.println(tmpBuffer); //for serial notification
+        // serialSendBuf.write(tmpBuffer);
+        Serial.println(tmpBuffer); // for serial notification
     }
     void reportEncoderValue(int codeValue, int mID, int32_t encoderValue)
     {
@@ -495,6 +495,7 @@ public:
     /////////////////////////////////////////////////////////////////////
     void processFinishingMove(int nAxis)
     {
+        uint32_t elapsedTime = speedData[nAxis].currentTime;
         speedData[nAxis].reset();
         kinData[nAxis].reset();
 
@@ -545,6 +546,10 @@ public:
             yield();
         } while (GetTickCount() - start < ms);
     }
+    ////////////////////////////////////////////////////////////////////////
+    // void setDirectionPin(Pio *pIO, int pNum){
+
+    // }
 };
 
 #endif

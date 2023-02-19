@@ -1,14 +1,14 @@
-#include "./src/main.h"
-#include "./src/due_can.h"
-#include "./src/mkCANEncoder.h"
-#include "./src/mkZoeRobotics_velProfile.h"
-#include "./src/mkZoeRobotics_command.h"
+#include "../src/main.h"
+#include "../src/due_can.h"
+#include "../src/mkCANEncoder.h"
+#include "../src/mkZoeRobotics_velProfile.h"
+#include "../src/mkZoeRobotics_command.h"
 
 #define ENCODER_CONVERSION 0.087890625 // 1//4096.0*360.0
 
 int arrivingdatabyte = 0;
 char str[128];
-int motorID = 0;
+// int motorID = 0;
 
 // static volatile bool bCupDropSignal = false;
 // static int cupSWDelayTime = 25;
@@ -58,6 +58,28 @@ void TC0_Handler_84() // 0: X-Axis
   PIOC->PIO_ODSR ^= PIO_ODSR_P17; // PIN46
 }
 //-------------------------------------
+void processFinishingMove(int nAxis)
+{
+  speedData[nAxis].reset();
+  // kinData[nAxis].reset();
+
+  // if (posData[nAxis].OperationMode == MOVING)
+  {
+    //--isAnyMotion;
+    posData[nAxis].OperationMode = JOB_DONE;
+    // reportStatus(posData[nAxis].CMDCode, nAxis);
+  }
+  // else if (posData[nAxis].OperationMode == HOMING && statusHoming[nAxis]==2)
+  // { // Homing is Done successfully...
+  //     posData[nAxis].CMDCode=SC_HOMING;
+  //     posData[nAxis].abs_step_pos=0;// Set absolute position zeros(reset position)...
+  //     posData[nAxis].OperationMode=JOB_DONE;
+  //     statusHoming[nAxis]=3;
+  //     reportStatus();
+  //     statusHoming[nAxis]=0;
+  //     //--isAnyMotion;
+  // }
+}
 
 //-----------------------------------------------------------------
 void tc_setup()
@@ -324,6 +346,31 @@ void TC8_Handler()
 }
 
 //------------------------------------------------------------------
+uint32_t pwmPin = 8;
+uint32_t maxDutyCount = 2;
+uint32_t clkAFreq = 42000000ul / 2;
+uint32_t pwmFreq = 42000000ul / 2;
+void setup_pwm()
+{
+  pmc_enable_periph_clk(PWM_INTERFACE_ID);
+  PWMC_ConfigureClocks(clkAFreq, 0, VARIANT_MCK);
+
+  PIO_Configure(
+      g_APinDescription[pwmPin].pPort,
+      g_APinDescription[pwmPin].ulPinType,
+      g_APinDescription[pwmPin].ulPin,
+      g_APinDescription[pwmPin].ulPinConfiguration);
+
+  uint32_t channel = g_APinDescription[pwmPin].ulPWMChannel;
+  PWMC_ConfigureChannel(PWM_INTERFACE, channel, pwmFreq, 0, 0);
+  PWMC_SetPeriod(PWM_INTERFACE, channel, maxDutyCount);
+  PWMC_EnableChannel(PWM_INTERFACE, channel);
+  PWMC_SetDutyCycle(PWM_INTERFACE, channel, 1);
+  // Without prescale it generates 21Mhz
+
+  // pmc_mck_set_prescaler(2); // Width the prescale 2 it gives 42MHz
+}
+//------------------------------------------------------------------
 unsigned long currentMillis;
 unsigned long previousMillis = 0UL;
 unsigned long previousMillis1 = 0UL;
@@ -332,59 +379,9 @@ void setup()
 {
   Serial.begin(115200);
   // MaxBytesAvailable=Serial.availableForWrite();
-  // pinMode(LED_BUILTIN, OUTPUT);
-  // pinMode(8, OUTPUT);  // C22
-  // pinMode(11, OUTPUT); // D7
-
-  // -------------- Define Pin layouts ----------
-  pinMode(47, OUTPUT);       // X-DIRECTION
-  pinMode(46, OUTPUT);       // X-PULSE
-  pinMode(45, INPUT_PULLUP); // X-HOMING SWITCH
-
-  pinMode(41, OUTPUT);       // R1-DIRECTION
-  pinMode(40, OUTPUT);       // R1-PULSE
-  pinMode(39, INPUT_PULLUP); // R1-HOMING SWITCH
-
-  pinMode(35, OUTPUT);       // R2-DIRECTION
-  pinMode(34, OUTPUT);       // R2-PULSE
-  pinMode(33, INPUT_PULLUP); // R2-HOMING SWITCH
-
-  pinMode(29, OUTPUT);       // Z-DIRECTION
-  pinMode(28, OUTPUT);       // Z-PULSE
-  pinMode(27, INPUT_PULLUP); // Z-HOMING SWITCH
-
-  //////////////////////////////////
-  // On/Off SSR (Soild State Relay) for Power
-  // PINOUT: 13
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW); // By default Power is turned off...
-
-  //////////////////////////////////
-  // ON/OFF SSR FOR Z-AXIS BRAKE (High: BRAKE OFF, Low: BRAKE ON)
-  // // PINOUT: 88(A8)
-  pinMode(88, OUTPUT);
-  digitalWrite(88, LOW);
-
-  ////////////////////////////////////////////////////
-  // CupDrop Motor Power Control...
-  // SSR: Normally Open
-  // PINOUT: 90(A10)
-  pinMode(90, OUTPUT);
-
-  ////////////////////////////////////////////////////
-  // CupDrop Switch for Cup Stop Cycle...
-  // PINOUT: 89(A9)
-  pinMode(89, PULLUP_INPUT);
-  digitalWrite(89, HIGH); // OFF
-
-  //-------------- Connect command with callback function of velocity profile.
-  mkCommand.setCallBack_gen_linear_prfile(mkVelProfile.gen_linear_profile);
-  mkCommand.setCallback_gen_EErotation_profile(mkVelProfile.gen_EErotation_profile);
-  mkCommand.setCallBack_gen_circle_prfile(mkVelProfile.gen_circl_profile);
-  mkCommand.setCallBack_gen_spiral_prfile(mkVelProfile.gen_spiral_profile);
-  mkCommand.setCallBack_gen_speed_profile(mkVelProfile.gen_speed_profile);
-  mkCommand.setCallBack_set_speed_profile(mkVelProfile.set_speed_profile);
-  mkCommand.setCallBack_update_speed_only(mkVelProfile.update_speed_only);
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(8, OUTPUT);  // C22
+  pinMode(11, OUTPUT); // D7
 
   // mkVelProfile.gen_speed_profile(0, 1650, 500, 600, 600);
   double distance = 1650; //[mm]

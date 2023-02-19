@@ -4,33 +4,23 @@
   Originated at 28 August 2020 by Mike Kim
 */
 #include <math.h>
+#include "main.h"
 #include "mkZoeRobotics_velProfile.h"
-// #include "mkZoeRobotics_serial.h"
 #include "mkZoeRobotics_define.h"
-// #include "mkMotorCtrl.h"
-// void setMotorDirection(int8_t dir);
 
-// extern MKStepperMotorCtrl mkSTMotorCtrl;
 MKVelProfile mkVelProfile;
-// extern volatile int8_t activatedEE;
-// extern // mkSerial // mkSerial;
 
-extern SPEEDRampData speedData[MAX_MOTOR_NUM];
-extern KIN_DATA kinData[3];
-extern MOTORCHANEL motorCh[3];
+extern MainOperation mkMainOperation;
+extern int motorID;
+// extern SPEEDRampData speedData[MAX_MOTOR_NUM];
+// extern KIN_DATA kinData[3];
+// extern MOTORCHANEL motorCh[3];
 
 static double DIST2STEP[4] = {16.0 * 2.0, 2291.83 * 2, 763.944 * 4.0, 32.0};                                   //[X, R1, R2, Z]
 static double STEP2DIST[4] = {1.0 / DIST2STEP[0], 1.0 / DIST2STEP[1], 1.0 / DIST2STEP[2], 1.0 / DIST2STEP[3]}; //[X, R1, R2, Z]
 
-extern void stopTimer(int n);
-// inline void setMotorDir(int8_t direction)
-// {
-//   // mkSerial.print(direction);
-//   // mkSerial.println(": setMOTORDIR()");
-// }
-// extern uint32_t DIST2STEP;
 extern POSData posData[4];
-extern int motorID;
+
 // #define SPR 1600 // (200*8); //% step per revolution
 // static  double alpha = (2.0 * M_PI / MICROSTEPPING); //  % [rad] angle per step
 // static  double two_alpha = 2.0 * alpha;       // alpha*2
@@ -175,8 +165,7 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   speedData[num].Na = floor(speed * speed / (motorParams[num].alpha * 2.0 * accel));
   uint32_t Nacc = floor(steps * decel / (accel + decel));
   char str[128];
-  sprintf(str, "start-Na:%d, alpha=%3.3f, alpha1=%3.3f, %d", speedData[num].Na, motorParams[num].alpha, 2.0 * M_PI / X_MICROSTEPPING, X_MICROSTEPPING);
-  Serial.println(str);
+
   if (speedData[num].Na < Nacc)
   {
     //%Nb = floor(speed^2/(2*alpha*decel));
@@ -200,7 +189,7 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
 
   speedData[num].step_count = 0;
 
-  sprintf(str, "start-speed:%3.3f", speed);
+  sprintf(str, "\n------------------------------\nstart-speed:%3.3f", speed);
   Serial.println(str);
   sprintf(str, "start-time:%3.3f", speedData[num].Ttotal);
   Serial.println(str);
