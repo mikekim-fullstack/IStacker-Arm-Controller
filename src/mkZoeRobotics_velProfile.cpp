@@ -26,71 +26,40 @@ extern POSData posData[4];
 // static  double two_alpha = 2.0 * alpha;       // alpha*2
 ///////////////////////////////////////////////////
 // Initializing static member variable: motorParams for static member functions...
-MOTOR_PARAMS MKVelProfile::motorParams[2] = {
+/**
+ * ---- MOTOR_PARAMS Order ----
+ * uint16_t MICROSTEPPING;
+ * float DIST2STEP;
+ * float STEP2DIST;
+ * float alpha;
+ * float two_alpha;
+ */
+MOTOR_PARAMS MKVelProfile::motorParams[4] = {
     // Motor#0: X-Axis
     {X_MICROSTEPPING,
-     X_MICROSTEPPING / X_DIST2STEP_20T5MM,
-     double(X_DIST2STEP_20T5MM) / double(X_MICROSTEPPING),
+     float(X_MICROSTEPPING) / float(X_LEADPITCH), // DIST2STEP
+     float(X_LEADPITCH) / float(X_MICROSTEPPING),
      2.0 * M_PI / X_MICROSTEPPING,
      4.0 * M_PI / X_MICROSTEPPING},
+    // Motor#2: R1-rotational axis
+    {R1_MICROSTEPPING,
+     float(R1_MICROSTEPPING) / float(R1_LEADPITCH), // DIST2STEP
+     float(R1_LEADPITCH) / float(R1_MICROSTEPPING),
+     2.0 * M_PI / R1_MICROSTEPPING,
+     4.0 * M_PI / R1_MICROSTEPPING},
+    // Motor#2: R2-rotational axis
+    {R2_MICROSTEPPING,
+     float(R2_MICROSTEPPING) / float(R2_LEADPITCH), // DIST2STEP
+     float(R2_LEADPITCH) / float(R2_MICROSTEPPING),
+     2.0 * M_PI / R2_MICROSTEPPING,
+     4.0 * M_PI / R2_MICROSTEPPING},
     // Motor#1: Z-Axis
-    {Z_MICROSTEPPING, Z_MICROSTEPPING / Z_DIST2STEP_20D5MM,
-     double(Z_DIST2STEP_20D5MM) / double(Z_MICROSTEPPING),
-     2.0 * M_PI / Z_MICROSTEPPING, 4.0 * M_PI / Z_MICROSTEPPING}};
+    {Z_MICROSTEPPING,
+     float(Z_MICROSTEPPING) / float(Z_LEADPITCH), // DIST2STEP
+     float(Z_LEADPITCH) / float(Z_MICROSTEPPING),
+     2.0 * M_PI / Z_MICROSTEPPING,
+     4.0 * M_PI / Z_MICROSTEPPING}};
 
-//  motorParams[0].MICROSTEPPING = X_MICROSTEPPING;
-// motorParams[0].DIST2STEP = X_MICROSTEPPING/X_DIST2STEP_20T5MM;
-
-// MOTOR_PARAMS MKVelProfile::motorParams[0].STEP2DIST = double(X_DIST2STEP_20T5MM)/double(X_MICROSTEPPING);
-// MOTOR_PARAMS MKVelProfile::motorParams[0].alpha = 2.0*M_PI/MKVelProfile::motorParams[0].MICROSTEPPING;
-// MOTOR_PARAMS MKVelProfile::motorParams[0].two_alpha = MKVelProfile::motorParams[0].alpha*2.0;
-
-// MOTOR_PARAMS MKVelProfile::motorParams[1].MICROSTEPPING = Z_MICROSTEPPING;
-// MOTOR_PARAMS MKVelProfile::motorParams[1].DIST2STEP = Z_MICROSTEPPING/Z_DIST2STEP_20D5MM;
-// MOTOR_PARAMS MKVelProfile::motorParams[1].STEP2DIST = double(Z_DIST2STEP_20D5MM)/double(Z_MICROSTEPPING);
-// MOTOR_PARAMS MKVelProfile::motorParams[1].alpha = 2.0*M_PI/MKVelProfile::motorParams[1].MICROSTEPPING;
-// MOTOR_PARAMS MKVelProfile::motorParams[1].two_alpha = MKVelProfile::motorParams[1].alpha*2.0;
-/*
-void MKVelProfile::set_speed_profile( uint32_t steps, uint32_t Na, uint32_t Nac, uint32_t Nd, uint32_t start_time0, int8_t dir)
-{
-  //int num = 0;
-
-  speedData[motorID].activated = false;
-  stopTimer(motorID);
-  // mkSerial.print(motorID);
-  // mkSerial.println(", I'm in updateVelocityProfile!");
-
-  activatedEE = -1;
-
-  speedData[motorID].steps = steps;
-  speedData[motorID].Na = Na;
-  speedData[motorID].Nac = Nac;
-  speedData[motorID].NNb = Nd;
-  speedData[motorID].Cn_acc0 = start_time0;
-  speedData[motorID].dir = dir;
-
-  if (dir == 1)
-  { // CCW
-
-      motorCh[motorID].dir.pIO->PIO_ODSR = motorCh[motorID].dir.pin;
-      motorCh[motorID].dir.pIO->PIO_CODR = motorCh[motorID].dir.pin;
-
-
-  }
-  else
-  { // CW
-      motorCh[motorID].dir.pIO->PIO_ODSR ^= motorCh[motorID].dir.pin;
-      motorCh[motorID].dir.pIO->PIO_SODR = motorCh[motorID].dir.pin;
-  }
-
-  speedData[motorID].Cn = speedData[motorID].Cn_acc0;
-  elapsedTime[motorID] = GetTickCount();
-  speedData[motorID].step_count = 0;
-
-  //speedData[motorID].activated = true;
-}
-*/
-// void MKVelProfile::set_speed_profile( uint32_t steps, uint32_t Na, uint32_t Nac, uint32_t Nd, uint32_t start_time0, int8_t dir)
 void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
 {
   int num = motorID;
@@ -104,16 +73,16 @@ void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
   speedData[num].Cn_acc0 = speedProfile.Cn_acc0;
   speedData[num].dir = speedProfile.dir;
 
-  if (speedProfile.dir == 1)
-  { // CCW
-    motorCh[num].dir.pIO->PIO_ODSR = motorCh[num].dir.pin;
-    motorCh[num].dir.pIO->PIO_CODR = motorCh[num].dir.pin;
-  }
-  else
-  { // CW
-    motorCh[num].dir.pIO->PIO_ODSR ^= motorCh[num].dir.pin;
-    motorCh[num].dir.pIO->PIO_SODR = motorCh[num].dir.pin;
-  }
+  // if (speedProfile.dir == 1)
+  // { // CCW
+  //   motorCh[num].dir.pIO->PIO_ODSR = motorCh[num].dir.pin;
+  //   motorCh[num].dir.pIO->PIO_CODR = motorCh[num].dir.pin;
+  // }
+  // else
+  // { // CW
+  //   motorCh[num].dir.pIO->PIO_ODSR ^= motorCh[num].dir.pin;
+  //   motorCh[num].dir.pIO->PIO_SODR = motorCh[num].dir.pin;
+  // }
 
   speedData[num].Cn = speedData[num].Cn_acc0;
   speedData[num].step_count = 0;
@@ -129,18 +98,10 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
 
   // double distance = 0.025 * steps; // [mm]
   //  activatedEE = -1;
-
+  speedData[num].activated = false;
+  speedData[num].prevDir = 0;
   int dir = SIGN(distance);
   uint32_t steps = lround(fabs(distance) * motorParams[num].DIST2STEP);
-
-  // mkSerial.print("gen_speed_profile::Moving Distance[mm]=");
-  // mkSerial.println(distance);
-
-  // if(speed>=MAX_SPEED_STEP) speed=MAX_SPEED_STEP; // Max speed...
-
-  // if(sel_sqrt_cal==SQRT_APPRO){
-  //   TICK_FREQ_SQRT_ERROR_COM *= 0.676;//0.69367;//initial error: 0.69367 at n=1, ((sqrt(2)-sqrt(1)))/((1.0-2.0/(4.0+1.0)))
-  // }
 
   // % 1. Calcalate Time
   // % Ta = speed/acceleration
@@ -164,7 +125,6 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   speedData[num].totalSteps = steps;
   speedData[num].Na = floor(speed * speed / (motorParams[num].alpha * 2.0 * accel));
   uint32_t Nacc = floor(steps * decel / (accel + decel));
-  char str[128];
 
   if (speedData[num].Na < Nacc)
   {
@@ -189,45 +149,20 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
 
   speedData[num].step_count = 0;
 
-  sprintf(str, "\n------------------------------\nstart-speed:%3.3f", speed);
-  Serial.println(str);
-  sprintf(str, "start-time:%3.3f", speedData[num].Ttotal);
-  Serial.println(str);
+  // char str[128];
+  // sprintf(str, "\n------------------------------\nstart-speed:%3.3f", speed);
+  // Serial.println(str);
+  // sprintf(str, "start-time:%3.3f", speedData[num].Ttotal);
+  // Serial.println(str);
 
-  sprintf(str, "start-totalSteps:%d", speedData[num].totalSteps);
-  Serial.println(str);
+  // sprintf(str, "start-totalSteps:%d", speedData[num].totalSteps);
+  // Serial.println(str);
 
-  sprintf(str, "start-Nacc:%d", Nacc);
-  Serial.println(str);
+  // sprintf(str, "start-Nacc:%d", Nacc);
+  // Serial.println(str);
 
-  sprintf(str, "stat-Nac:%d, Na=%d, Nb=%d, Nc=%d", speedData[num].Nac, speedData[num].Na, speedData[num].Nb, speedData[num].Nc);
-  Serial.println(str);
-  // if (dir == 1)
-  // { // CCW
-  //   IOMap[num][ST_DIR].pIO->PIO_ODSR = IOMap[num][ST_DIR].pin;
-  //   IOMap[num][ST_DIR].pIO->PIO_CODR = IOMap[num][ST_DIR].pin;
-  // }
-  // else
-  // { // CW
-  //   IOMap[num][ST_DIR].pIO->PIO_ODSR ^= IOMap[num][ST_DIR].pin;
-  //   IOMap[num][ST_DIR].pIO->PIO_SODR = IOMap[num][ST_DIR].pin;
-  // }
-  // mkSTMotorCtrl.writeMotorDirection(dir);
-
-  // mkSerial.println("----------------start -------------");
-  // mkSerial.print("speedData[num].Cn=");
-  // mkSerial.println(speedData[num].Cn);
-  // mkSerial.print("Total time[");
-  // mkSerial.print(num);
-  // mkSerial.print("]=:");
-  // mkSerial.println(speedData[num].Ttotal, 4);
-  // mkSerial.println(steps);
-  // mkSerial.println(speedData[num].Cn_acc0);
-  // mkSerial.println(speedData[num].Na);
-  // mkSerial.println(speedData[num].Nac);
-  // mkSerial.println(speedData[num].NNb);
-
-  // speedData[num].activated = true;
+  // sprintf(str, "stat-Nac:%d, Na=%d, Nb=%d, Nc=%d", speedData[num].Nac, speedData[num].Na, speedData[num].Nb, speedData[num].Nc);
+  // Serial.println(str);
 }
 
 void MKVelProfile::update_speed_only(uint16_t num, uint32_t steps)

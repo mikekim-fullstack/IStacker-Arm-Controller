@@ -199,6 +199,7 @@ typedef struct _KINEMATICS_DATA_
   volatile bool pulseTick = false;
   volatile bool pulseDown = false;
   volatile uint16_t step_count = 0;
+  volatile int8_t prevDir = 0;
 
   int dataSize = 0;
   int totalSteps = 0;

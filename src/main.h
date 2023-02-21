@@ -16,7 +16,8 @@ extern int motorID;
 class MainOperation
 {
 public:
-        int cupSWDelayTime = 25;
+    int8_t isAnyMotion = 0;
+    int cupSWDelayTime = 25;
     volatile bool bCupDropSignal = false;
     unsigned long elapsedTime[MAX_MOTOR_NUM] = {0};
     portIOPair SSR_POWER;
@@ -101,6 +102,11 @@ public:
             channel = 1;
             irq = TC7_IRQn;
             break;
+        case 8:
+            tc = TC2;
+            channel = 2;
+            irq = TC8_IRQn;
+            break;
         default:
             return;
         }
@@ -123,16 +129,16 @@ public:
         tc->TC_CHANNEL[channel].TC_IER = TC_IER_CPCS;
         tc->TC_CHANNEL[channel].TC_IDR = ~TC_IER_CPCS;
         NVIC_ClearPendingIRQ(irq);
-        NVIC_SetPriority(irq, 2);
+        // NVIC_SetPriority(irq, 2);
         NVIC_EnableIRQ(irq);
         TC_Start(tc, channel);
     }
 
     void stopTimer(int n)
     {
-        Tc *tc = TC0;
+        Tc *tc;
         uint32_t channel = 0;
-        IRQn_Type irq = TC0_IRQn;
+        IRQn_Type irq;
         switch (n)
         {
         case 0:
@@ -175,6 +181,11 @@ public:
             channel = 1;
             irq = TC7_IRQn;
             break;
+        case 8:
+            tc = TC2;
+            channel = 2;
+            irq = TC8_IRQn;
+            break;
         default:
             return;
         }
@@ -189,10 +200,16 @@ public:
             speedData[i].reset();
             posData[i].reset();
         }
-        startTimer(0, TICK_PRESCALE, 340); // Z
-        startTimer(1, TICK_PRESCALE, 340); // X
-        startTimer(2, TICK_PRESCALE, 340); // Q
-        startTimer(3, TICK_PRESCALE, 340); // R
+        startTimer(0, TICK_PRESCALE, 1); // Z
+        startTimer(1, TICK_PRESCALE, 1); // X
+        startTimer(2, TICK_PRESCALE, 1); // Q
+        startTimer(3, TICK_PRESCALE, 1); // R
+
+        //----- pluse 10microsec
+        startTimer(4, TICK_PRESCALE, 100000); // R
+        startTimer(5, TICK_PRESCALE, 100000); // R
+        startTimer(6, TICK_PRESCALE, 100000); // R
+        startTimer(7, TICK_PRESCALE, 100000); // R
     }
     void controlPowerLine(bool bPowerOn)
     {
@@ -444,8 +461,8 @@ public:
                 0, //(millis() - elapsedTime[mID]),
                 jobStatus.jobID, jobStatus.nSequence);
 
-        // serialSendBuf.write(tmpBuffer);
-        Serial.println(tmpBuffer); // for serial notification
+        serialSendBuf.write(tmpBuffer);
+        // Serial.println(tmpBuffer); // for serial notification
     }
     void reportEncoderValue(int codeValue, int mID, int32_t encoderValue)
     {

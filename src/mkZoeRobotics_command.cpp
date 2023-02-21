@@ -21,35 +21,12 @@ MKCommand mkCommand;
 extern MainOperation mkMainOperation;
 extern int motorID;
 extern mkCANEncoder mkCAN;
-// extern OP_MODE OperationMode;
-// extern POSData posData[4];
-// extern SPEEDRampData speedData[MAX_MOTOR_NUM];
-// extern KIN_DATA kinData[3];
-// extern  uint16_t gIRQ_TC_FLAG_DONE[MAX_MOTOR_NUM] ;
-extern SERIAL_BUFFER_DATA serialSendBuf;
+
 extern unsigned long elapsedTime[MAX_MOTOR_NUM];
 // extern  int8_t activatedEE;
-extern int8_t isAnyMotion;
+// extern int8_t isAnyMotion;
 extern JOBSTATUS jobStatus;
 
-// extern uint8_t getHomeSWStatus();
-// extern uint8_t getStatusHoming();
-// extern void setStatusHoming(uint8_t val);
-// extern void reportACK(int codeValue, int mID, int errorCode = 0);
-// extern void reportStatus(int codeValue, int mID);
-// extern void reportAllPosStatus(int respCode, int codeValue);
-// extern void reportGenKinDataStatus(int RC, int codeValue, int rev);
-// extern void startTimer(int n, int prescale, uint32_t frequency);
-// extern void rebootTimers();
-// extern void stopTimer(int n);
-// extern void stopMotionAll();
-// extern void stopMotion(int id);
-// extern void resetElapsedTime();
-// extern void resetElapsedTime(int ch);
-// extern void controlPowerLine(bool bPowerOn);
-// extern void controlZBrake(bool bBrakeOn);
-// extern void delay(unsigned long ms);
-// extern void controlDropCup(int delayTime);
 void MKCommand::getCommand()
 {
   while (Serial.available() > 0 && buflen < BUFSIZE)
@@ -121,7 +98,7 @@ void MKCommand::getStartMove(int axis_sel)
     if (axis_sel & (1 << SM_X)) // Start X-axis
     {
       bTimer[0] = true;
-      isAnyMotion++;
+      mkMainOperation.isAnyMotion++;
     }
     if (axis_sel & (1 << SM_R1)) // Start R1-axis
     {
