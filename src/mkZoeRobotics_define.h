@@ -74,6 +74,7 @@
 // Old cofiguration for Ball Screw axis
 // #define  Z_MICROSTEPPING 400 // 200 STEPS X 1 MICROSTEP
 #define Z_LEADPITCH 100
+#define ENCODER_CONVERSION 0.087890625 // 1//4096.0*360.0
 
 #ifndef HIGH
 #define HIGH 0x1

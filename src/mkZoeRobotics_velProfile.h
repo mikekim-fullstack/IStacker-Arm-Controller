@@ -58,7 +58,7 @@ public:
   static int gen_linear_profile_old(LINEARProfile &linearProfile);
   static int gen_linear_profile(LINEARProfile &linearProfile);
   static int gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile);
-  static int gen_circl_profile(CIRCLEProfile &circleProfile);
+  static int gen_circle_profile(CIRCLEProfile &circleProfile);
   static int gen_spiral_profile(SPIRALProfile &spiralProfile);
   static void set_speed_profile(SPEEDProfile &speedProfile);
   static void gen_speed_profile(uint16_t num, double distance, double speed, double accel, double decel);

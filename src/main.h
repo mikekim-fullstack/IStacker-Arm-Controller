@@ -13,6 +13,7 @@ extern OP_MODE OperationMode;
 extern SERIAL_BUFFER_DATA serialSendBuf;
 extern JOBSTATUS jobStatus;
 extern int motorID;
+extern SEL_MODE motionMode;
 class MainOperation
 {
 public:
@@ -206,10 +207,10 @@ public:
         startTimer(3, TICK_PRESCALE, 1); // R
 
         //----- pluse 10microsec
-        startTimer(4, TICK_PRESCALE, 100000); // R
-        startTimer(5, TICK_PRESCALE, 100000); // R
-        startTimer(6, TICK_PRESCALE, 100000); // R
-        startTimer(7, TICK_PRESCALE, 100000); // R
+        startTimer(4, TICK_PRESCALE, 65625); // R
+        startTimer(5, TICK_PRESCALE, 65625); // R
+        startTimer(6, TICK_PRESCALE, 65625); // R
+        startTimer(7, TICK_PRESCALE, 65625); // R
     }
     void controlPowerLine(bool bPowerOn)
     {
@@ -434,6 +435,15 @@ public:
     void reportStatus()
     {
         char tmpBuffer[96] = {0};
+        uint32_t elapsedTime = 0;
+        if (motionMode == MODE_JOINT)
+        {
+            elapsedTime = speedData[motorID].startTime * 0.01;
+        }
+        else if (motionMode == MODE_CARTESIAN)
+        {
+            elapsedTime = kinData[motorID].startTime * 0.01;
+        }
         sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d",
                 RC_STATUS,
                 posData[motorID].CMDCode,
@@ -442,7 +452,7 @@ public:
                 posData[motorID].OperationMode,
                 statusHoming[motorID],
                 getHomeSWStatus(motorID),
-                0, //(millis() - elapsedTime[motorID]),
+                elapsedTime, //(millis() - elapsedTime[motorID]),
                 jobStatus.jobID,
                 jobStatus.nSequence);
         serialSendBuf.write(tmpBuffer);
@@ -450,7 +460,16 @@ public:
     void reportStatus(int codeValue, int mID)
     {
         char tmpBuffer[96] = {0};
-        sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d",
+        int elapsedTime = 0;
+        if (motionMode == MODE_JOINT)
+        {
+            elapsedTime = speedData[mID].startTime * 0.01;
+        }
+        else if (motionMode == MODE_CARTESIAN)
+        {
+            elapsedTime = kinData[mID].startTime * 0.01;
+        }
+        sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d ",
                 RC_STATUS,
                 codeValue,
                 mID,
@@ -458,7 +477,7 @@ public:
                 posData[motorID].OperationMode,
                 statusHoming[mID],
                 getHomeSWStatus(motorID),
-                0, //(millis() - elapsedTime[mID]),
+                elapsedTime, //(millis() - elapsedTime[mID]),
                 jobStatus.jobID, jobStatus.nSequence);
 
         serialSendBuf.write(tmpBuffer);
@@ -512,9 +531,21 @@ public:
     /////////////////////////////////////////////////////////////////////
     void processFinishingMove(int nAxis)
     {
-        uint32_t elapsedTime = speedData[nAxis].currentTime;
+
         speedData[nAxis].reset();
         kinData[nAxis].reset();
+
+        // if (motionMode == MODE_JOINT)
+        // {
+        //     speedData[motorID].endTime = millis();
+        // }
+        // else if (motionMode == MODE_CARTESIAN)
+        // {
+        //     // kinData[motorID].endTime = millis();
+        //     // char str[128];
+        //     // sprintf(str, "starttime=%dms, endTime=%d", kinData[motorID].startTime *0.001, kinData[motorID].endTime);
+        //     // serialSendBuf.write(str);
+        // }
 
         if (posData[nAxis].OperationMode == MOVING)
         {

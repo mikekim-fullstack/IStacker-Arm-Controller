@@ -132,6 +132,12 @@ typedef struct
   portIOPair swE;
 } MOTORCHANEL;
 
+enum SEL_MODE
+{
+  MODE_JOINT = 0,
+  MODE_CARTESIAN
+};
+
 typedef struct _speedRampData
 {
   volatile bool activated = false;
@@ -159,7 +165,8 @@ typedef struct _speedRampData
   volatile int8_t dir = 0;     // 1:CCW, -1:CW
   volatile int8_t prevDir = 0; // 1:CCW, -1:CW
 
-  uint32_t currentTime = 0;
+  uint32_t startTime = 0;
+  uint32_t endTime = 0;
 
   void reset()
   {
@@ -193,39 +200,43 @@ typedef struct _KINEMATICS_DATA_
     int dir = 0;   // stepper motor direction(1: CCW, -1:CW)
   } MOTIONDATA;
 
-  MOTIONDATA motionData[MAX_MOTIONDATA_SIZE] = {};
+  volatile MOTIONDATA motionData[MAX_MOTIONDATA_SIZE] = {};
   volatile uint16_t indexMotionData = 0;
   volatile bool activated = false;
   volatile bool pulseTick = false;
   volatile bool pulseDown = false;
   volatile uint16_t step_count = 0;
+  volatile uint16_t step_sum = 0;
   volatile int8_t prevDir = 0;
 
   int dataSize = 0;
-  int totalSteps = 0;
-  uint32_t getMotionCn()
+  // int32_t finalSumSteps = 0;
+  int32_t totalSteps = 0;
+  uint32_t startTime = 0;
+  uint32_t endTime = 0;
+  uint32_t inline getMotionCn()
   {
     return motionData[indexMotionData].Cn;
   }
-  uint8_t getMotionSteps()
+  uint8_t inline getMotionSteps()
   {
     return motionData[indexMotionData].steps;
   }
-  int8_t getMotionDir()
+  int8_t inline getMotionDir()
   {
     return motionData[indexMotionData].dir;
   }
-  void nextMotionData()
+  uint16_t inline nextMotionData()
   {
-    ++indexMotionData;
+    return ++indexMotionData;
   }
-  bool isMotionDone()
+  bool inline isMotionDone()
   {
-    if (indexMotionData >= dataSize)
+    if (step_sum == totalSteps - 1)
       return true;
     return false;
   }
-  void motionDone()
+  void inline motionDone()
   {
     indexMotionData = 0;
     activated = false;
@@ -240,7 +251,7 @@ typedef struct _KINEMATICS_DATA_
     pulseTick = false;
     pulseDown = false;
     step_count = 0;
-    memset(motionData, 0, sizeof(MOTIONDATA) * MAX_MOTIONDATA_SIZE);
+    memset((MOTIONDATA *)motionData, 0, sizeof(MOTIONDATA) * MAX_MOTIONDATA_SIZE);
     dataSize = 0;
     totalSteps = 0;
   }

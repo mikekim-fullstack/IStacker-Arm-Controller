@@ -1,15 +1,20 @@
+#include "./src/mkZoeRobotics_globalDataStruct.h"
 #include "./src/main.h"
 #include "./src/due_can.h"
 #include "./src/mkCANEncoder.h"
 #include "./src/mkZoeRobotics_velProfile.h"
 #include "./src/mkZoeRobotics_command.h"
 
-#define ENCODER_CONVERSION 0.087890625 // 1//4096.0*360.0
 static int motorNumber = 1;
+extern SEL_MODE motionMode;
+
 // ------- PIN MAPPING ----------
 // ********* Motor #0 **************
-#define PIN_X_DIR 47
-#define PIN_X_PULSE 46
+// #define PIN_X_DIR 47
+// #define PIN_X_PULSE 46
+// #define PIN_X_HOME_SW 45
+#define PIN_X_DIR 11
+#define PIN_X_PULSE 8
 #define PIN_X_HOME_SW 45
 
 // ********* Motor #1 **************
@@ -29,12 +34,12 @@ static int motorNumber = 1;
 // #define PIN_R2_HOME_SW 33
 
 // ********* Motor #3 **************
-// #define PIN_Z_DIR 29
-// #define PIN_Z_PULSE 28
-// #define PIN_Z_HOME_SW 27
-#define PIN_Z_DIR 11
-#define PIN_Z_PULSE 8
+#define PIN_Z_DIR 29
+#define PIN_Z_PULSE 28
 #define PIN_Z_HOME_SW 27
+// #define PIN_Z_DIR 11
+// #define PIN_Z_PULSE 8
+// #define PIN_Z_HOME_SW 27
 // --------------------------------
 #define PIN_POWER_SW 13
 #define PIN_Z_BRAKE 88
@@ -327,65 +332,143 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   // ** Kinematic Cartesian Motion ** //
   if (kinData[motorNum].activated)
   {
+    // volatile int dir = kinData[motorNum].getMotionDir();
+    // MOTIONDATA *motionData; // = kinData[motorNum].motionData;
+    // volatile uint16_t *index = &kinData[motorNum].indexMotionData;
+    // if (kinData[motorNum].indexMotionData == 0)
+    // {
+    //   // kinData[motorNum].startTime = millis();
+    //   // sprintf(str, "start=%d", motorNum);
+    //   // // serialSendBuf.write(str);
+    //   // Serial.println(str);
+    // }
 
-    if (kinData[motorNum].getMotionCn() > 0)
-    {
-      // TC_SetRC(tc, 0, kinData[motorNum].getMotionCn());
-      tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
-    }
-    else
-    {
-      kinData[motorNum].step_count = 0;
-      kinData[motorNum].nextMotionData();
-      if (kinData[motorNum].isMotionDone())
-      {
-        kinData[motorNum].motionDone();
-        mkMainOperation.processFinishingMove(motorNum);
-      }
-      return;
-    }
-    //////////////////////////////////////
-    // -- When the step is zero, only takes time by Cn...
+    // ////////////////////////////////////////////////
+
+    // if (kinData[motorNum].getMotionCn() > 0)
+    // {
+    //   // TC_SetRC(tc, 0, kinData[motorNum].getMotionCn());
+    //   tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
+    // }
+    // else
+    // {
+    //   kinData[motorNum].step_count = 0;
+    //   kinData[motorNum].nextMotionData();
+    //   if (kinData[motorNum].isMotionDone())
+    //   {
+    //     sprintf(str, "end---%d", motorNum);
+    //     serialSendBuf.write(str);
+    //     kinData[motorNum].motionDone();
+    //     mkMainOperation.processFinishingMove(motorNum);
+    //   }
+    //   return;
+    // }
+    // ////////////////////////////////////
+    // // -- When the step is zero, only takes time by Cn...
+    // // if (kinData[motorNum].getMotionSteps() == 0)
+    // // {
+
+    // //   kinData[motorNum].pulseTick = false;
+    // //   // kinData[motorNum].nextMotionData();
+    // // }
+    // // // -- When the step exits generate pulse for a motor...
+    // // else
+    // if (kinData[motorNum].getMotionSteps() > 0)
+    // {
+
+    //     kinData[motorNum].step_count++; // should uncomment
+    //     // kinData[motorNum].step_sum++;
+    //     digitalWrite(PIN_PULSE, HIGH);
+    //     kinData[motorNum].pulseTick = true;
+
+    //   ////////////////////////////////////////////////////////////
+    //   if (kinData[motorNum].step_count == kinData[motorNum].getMotionSteps())
+    //   {
+    //     kinData[motorNum].step_count = 0;
+    //     // kinData[motorNum].nextMotionData();
+    //   }
+    // }
+    // // -- Check if all motion is done...
+    // if (kinData[motorNum].step_sum == kinData[motorNum].totalSteps) //&& kinData[motorNum].step_sum == kinData[motorNum].totalSteps)
+    // {
+    //   kinData[motorNum].activated = false;
+    //   // kinData[motorNum].currentTime = millis() - kinData[motorNum].currentTime;
+    //   sprintf(str, "End(%d) -  step_sum=%d, index=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData);
+    //   serialSendBuf.write(str);
+
+    //   kinData[motorNum].motionDone();
+    //   mkMainOperation.processFinishingMove(motorNum);
+    //   return;
+    // };
+
+    // ------------- Test --------------------------------
+
+    volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData + 1].dir; // kinData[motorNum].getMotionDir();
+    if (dir == 1)
+      digitalWrite(PIN_DIR, HIGH);
+    else if (dir == -1)
+      digitalWrite(PIN_DIR, LOW);
+    // tc->TC_CHANNEL[tcChannel].TC_RC = 10;
+
+    tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
     if (kinData[motorNum].getMotionSteps() == 0)
     {
       kinData[motorNum].nextMotionData();
+      // ++kinData[motorNum].indexMotionData;
     }
-    // -- When the step exits generate pulse for a motor...
     else
     {
-      // --------------------Motor Direction -----------------
-      int8_t dir = kinData[motorNum].getMotionDir();
-      if (kinData[motorNum].prevDir != dir)
-      {
-        kinData[motorNum].prevDir = dir;
-        if (dir == 0x1)
-          digitalWrite(PIN_DIR, HIGH);
-        else
-          digitalWrite(PIN_DIR, LOW);
 
-        // Changing a motor direction needs a interval
-        // between a direction pulse and a step pulse about 10msec.
-        tc->TC_CHANNEL[tcChannel].TC_RC = 7; // about 10msec
-        return;
-      }
-      kinData[motorNum].step_count++; // should uncomment
       digitalWrite(PIN_PULSE, HIGH);
       kinData[motorNum].pulseTick = true;
-      // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
-      set10mmsPulseTimer(motorNum + 4);
+
+      // // --------------------Motor Direction -----------------
+      // if (kinData[motorNum].getMotionDir() == 0x01)
+      // {
+      //   digitalWrite(PIN_DIR, HIGH);
+      // }
+      // else if (kinData[motorNum].getMotionDir() == -0x01)
+      // {
+      //   digitalWrite(PIN_DIR, LOW);
+      // }
+
+      // posData[motorNum].abs_step_pos += dir; //+= kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
+
       ////////////////////////////////////////////////////////////
-      if (kinData[motorNum].step_count == kinData[motorNum].getMotionSteps())
+      if (kinData[motorNum].step_count == kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps)
       {
-        kinData[motorNum].step_count = 0;
+        // ++kinData[motorNum].indexMotionData;
         kinData[motorNum].nextMotionData();
+        kinData[motorNum].step_count = 0;
       }
     }
-    // -- Check if all motion is done...
-    if (kinData[motorNum].isMotionDone())
+    if (kinData[motorNum].indexMotionData == kinData[motorNum].dataSize)
     {
+      sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos);
+      serialSendBuf.write(str);
       kinData[motorNum].motionDone();
       mkMainOperation.processFinishingMove(motorNum);
+      return;
     }
+    // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000);
+
+    return;
+
+    // ------------- Test: Working --------------------------------
+    tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
+    digitalWrite(PIN_PULSE, HIGH);
+    kinData[motorNum].pulseTick = true;
+    // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000);
+
+    if (kinData[motorNum].indexMotionData == kinData[motorNum].dataSize - 1)
+    {
+      sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos);
+      serialSendBuf.write(str);
+      kinData[motorNum].motionDone();
+      mkMainOperation.processFinishingMove(motorNum);
+      return;
+    }
+    //----------------------------------------------------------
   }
   /////////////////////////////////////////////////////////////
   // ** Joint Motion ** //
@@ -413,9 +496,9 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
     if (step_count == speedData[motorNum].totalSteps)
     {
       speedData[motorNum].activated = false;
-      speedData[motorNum].currentTime = millis() - speedData[motorNum].currentTime;
-      sprintf(str, "End(%d) - cnt=%d, %d, t=%d", motorNum, step_count, speedData[motorNum].Nac, speedData[motorNum].currentTime);
-      serialSendBuf.write(str);
+      // speedData[motorNum].endTime = millis();
+      // sprintf(str, "End(%d) - cnt=%d, %d, t=%d", motorNum, step_count, speedData[motorNum].Nac, speedData[motorNum].currentTime);
+      // serialSendBuf.write(str);
 
       speedData[motorNum].step_count = 0;
       mkMainOperation.processFinishingMove(motorNum);
@@ -429,7 +512,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       // Serial.println(str);
       // For measuring the elapsed time.
 
-      speedData[motorNum].currentTime = millis();
+      // speedData[motorNum].startTime = millis();
       // Set a step counter.
       tc->TC_CHANNEL[tcChannel].TC_RC = speedData[motorNum].Cn;
       // tc->TC_CHANNEL[tcChannel].TC_RC = 40;
@@ -515,19 +598,66 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   }
 }
 
-volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum, uint16_t PIN_PULSE)
+volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum, uint16_t PIN_PULSE, uint8_t PIN_DIR)
 {
   tc->TC_CHANNEL[tcChannel].TC_SR;
 
-  if (speedData[motorNum].activated && speedData[motorNum].pulseTick)
+  if (kinData[motorNum].activated == true)
   {
-    speedData[motorNum].pulseTick = false;
-    // speedData[motorNum].step_count++;
-    // PIOC->PIO_ODSR = 0 << 22; // PIN8
-    digitalWrite(PIN_PULSE, LOW);
-    posData[motorNum].abs_step_pos += speedData[motorNum].dir;
+    volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
+    kinData[motorNum].startTime++;
+    if (kinData[motorNum].pulseTick)
+    {
+      kinData[motorNum].pulseTick = false;
+      kinData[motorNum].step_count++;
+      digitalWrite(PIN_PULSE, LOW);
+      posData[motorNum].abs_step_pos += dir; // kinData[motorNum].getMotionDir();
+      ++kinData[motorNum].step_sum;
+
+      // ++kinData[motorNum].indexMotionData;
+    }
   }
-  tc->TC_CHANNEL[tcChannel].TC_RC = 7;
+  else if (speedData[motorNum].activated)
+  {
+    speedData[motorNum].startTime++;
+    volatile int dir = kinData[motorNum].getMotionDir();
+    if (dir != kinData[motorNum].prevDir)
+    {
+      kinData[motorNum].prevDir = dir;
+      if (dir == 1)
+        digitalWrite(PIN_DIR, HIGH);
+      else if (dir == -1)
+        digitalWrite(PIN_DIR, LOW);
+      tc->TC_CHANNEL[tcChannel].TC_RC = 5;
+      return;
+    }
+    if (speedData[motorNum].pulseTick)
+    {
+      // --------------------Motor Direction -----------------
+      // if (dir != kinData[motorNum].prevDir)
+      // {
+      //   kinData[motorNum].prevDir = dir;
+      //   if (dir == 1)
+      //     digitalWrite(PIN_DIR, HIGH);
+      //   else if (dir == -1)
+      //     digitalWrite(PIN_DIR, LOW);
+      //   tc->TC_CHANNEL[tcChannel].TC_RC = 10;
+      //   return;
+      // }
+
+      // if (dir == 1)
+      //   digitalWrite(PIN_DIR, HIGH);
+      // else if (dir == -1)
+      //   digitalWrite(PIN_DIR, LOW);
+      // tc->TC_CHANNEL[tcChannel].TC_RC = 10;
+
+      speedData[motorNum].pulseTick = false;
+      digitalWrite(PIN_PULSE, LOW);
+
+      posData[motorNum].abs_step_pos += dir; // speedData[motorNum].dir;
+    }
+  }
+  tc->TC_CHANNEL[tcChannel].TC_RC = 10;
   // mkMainOperation.stopTimer(motorNum + 4);
 }
 
@@ -1288,7 +1418,7 @@ void TC3_Handler() // 3: Z-Axis
 //--------------------
 void TC4_Handler()
 {
-  pulse10mmsTick(TC1, 1, 0, PIN_X_PULSE);
+  pulse10mmsTick(TC1, 1, 0, PIN_X_PULSE, PIN_X_DIR);
   /*
   TC1->TC_CHANNEL[1].TC_SR;
   int mID = 0;
@@ -1310,7 +1440,7 @@ void TC4_Handler()
 }
 void TC5_Handler()
 {
-  pulse10mmsTick(TC1, 2, 1, PIN_R1_PULSE);
+  pulse10mmsTick(TC1, 2, 1, PIN_R1_PULSE, PIN_R1_DIR);
   // TC1->TC_CHANNEL[2].TC_SR;
   // int mID = 1;
   // if (speedData[mID].activated == true || speedData[mID].pulseTick)
@@ -1331,7 +1461,7 @@ void TC5_Handler()
 }
 void TC6_Handler()
 {
-  pulse10mmsTick(TC2, 0, 2, PIN_R2_PULSE);
+  pulse10mmsTick(TC2, 0, 2, PIN_R2_PULSE, PIN_R2_DIR);
   // TC2->TC_CHANNEL[0].TC_SR;
   // int mID = 2;
   // if (speedData[mID].activated == true || speedData[mID].pulseTick)
@@ -1352,7 +1482,7 @@ void TC6_Handler()
 }
 void TC7_Handler()
 {
-  pulse10mmsTick(TC2, 1, 3, PIN_Z_PULSE);
+  pulse10mmsTick(TC2, 1, 3, PIN_Z_PULSE, PIN_Z_DIR);
   // TC2->TC_CHANNEL[1].TC_SR;
   // int mID = 3;
   // if (speedData[mID].activated == true || speedData[mID].pulseTick)
@@ -1412,17 +1542,18 @@ unsigned long previousMillis = 0UL;
 unsigned long previousMillis1 = 0UL;
 unsigned long interval = 1500UL;
 
+// For Test ---------
 bool dir = true;
 bool start = false;
 static int16_t sHomeSW = 0;
 static bool testTimer = true;
-
+CIRCLEProfile circleProfile;
 //------------------------------------------------------------------
 void setup()
 {
 
   Serial.begin(115200);
-  mkMainOperation.init_interrupt();
+  // mkMainOperation.init_interrupt();
   mkMainOperation.rebootTimers();
   mkCAN.initCAN();
   serialSendBuf.reset();
@@ -1475,7 +1606,7 @@ void setup()
   //-------------- Connect command with callback function of velocity profile.
   mkCommand.setCallBack_gen_linear_profile(mkVelProfile.gen_linear_profile);
   mkCommand.setCallback_gen_EErotation_profile(mkVelProfile.gen_EErotation_profile);
-  mkCommand.setCallBack_gen_circle_profile(mkVelProfile.gen_circl_profile);
+  mkCommand.setCallBack_gen_circle_profile(mkVelProfile.gen_circle_profile);
   mkCommand.setCallBack_gen_spiral_profile(mkVelProfile.gen_spiral_profile);
   mkCommand.setCallBack_gen_speed_profile(mkVelProfile.gen_speed_profile);
   mkCommand.setCallBack_set_speed_profile(mkVelProfile.set_speed_profile);
@@ -1598,8 +1729,8 @@ void loop_original()
 }
 
 //////////////////////////////////
-// loop_multi_motor_test
-void loop()
+// loop_multi_motor_speed
+void loop_multi_motor_speed()
 {
   // put your main code here, to run repeatedly:
   if (Serial.available() > 0)
@@ -1632,7 +1763,7 @@ void loop()
         int n = nn[i];
         if (posData[n].OperationMode == STOPPED)
         {
-          sprintf(str, "motorNumber:%d started, %d", n, int(2.5));
+          sprintf(str, "motorNumber:%d ", n);
           Serial.println(str);
           posData[n].OperationMode = MOVING;
           // posData[0].abs_step_pos = 0;
@@ -1665,7 +1796,7 @@ void loop()
           }
           else if (n == 3)
           {
-            distance = 1000 + 650 * 0; //[mm]
+            distance = 1000 + 650; //[mm]
             speed = 400.0 * (PI * 2.0 / Z_LEADPITCH);
             accel = 450.0 * (PI * 2.0 / Z_LEADPITCH);
             decel = accel;
@@ -1676,6 +1807,7 @@ void loop()
           else
             mkVelProfile.gen_speed_profile(n, -distance, speed, accel, decel);
           // delay(10);
+          speedData[n].startTime = 0;
           speedData[n].activated = true;
         }
       }
@@ -1711,6 +1843,95 @@ void loop()
     }
   }
 }
+
+//////////////////////////////////
+// loop_CIRCLEProfile
+void loop()
+{
+  if (Serial.available() > 0)
+  {
+    arrivingdatabyte = Serial.read();
+    Serial.write(arrivingdatabyte);
+    if (arrivingdatabyte == 's')
+    {
+      circleProfile.speed = 360;    //[deg/sec]: EE Speed
+      circleProfile.cenPosX = 1000; //[mm]: Start EEx position
+      circleProfile.cenPosY = -250; //[mm]: Start EEy Position
+      circleProfile.EETheta = -90;  //[deg]: Start EEthea angle
+      circleProfile.arcAng = 360;   //[deg]: Rotation angle
+      circleProfile.radius = 50;    //[mm]: Circle radius to move
+
+      int rev = mkVelProfile.gen_circle_profile(circleProfile);
+      sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d),", rev,
+              kinData[0].dataSize, kinData[0].totalSteps,
+              kinData[1].dataSize, kinData[1].totalSteps,
+              kinData[2].dataSize, kinData[2].totalSteps);
+      serialSendBuf.write(str);
+
+      for (int i = 0; i < 4; i++)
+      {
+        posData[i].abs_step_pos = 0;
+        posData[i].OperationMode = STOPPED;
+      }
+
+      start = true;
+      previousMillis = millis();
+    }
+  }
+
+  if (start)
+  {
+
+    currentMillis = millis();
+    if (currentMillis - previousMillis > interval)
+    {
+      start = false;
+      const int size = 3;
+      int nn[size] = {0, 1, 2};
+
+      for (int i = 0; i < size; i++)
+      {
+        int n = nn[i];
+        if (posData[n].OperationMode == STOPPED)
+        {
+          kinData[n].startTime = 0; // millis();
+          kinData[n].endTime = 0;   // millis();
+          sprintf(str, "motorNumber:%d started at %d", n, kinData[n].startTime);
+          Serial.println(str);
+          posData[n].OperationMode = MOVING;
+
+          kinData[n].activated = true;
+        }
+      }
+
+      dir = !dir;
+      previousMillis = currentMillis;
+    }
+  }
+
+  // for (int n = 0; n < 4; n++)
+  // {
+  //   if (posData[n].OperationMode == JOB_DONE)
+  //   {
+  //     unsigned long curr = millis();
+  //     sprintf(str, "Done(%d)! totalSteps:%d", n, posData[n].abs_step_pos);
+  //     Serial.println(str);
+  //     posData[n].OperationMode = STOPPED;
+  //     // previousMillis = currentMillis;
+  //   }
+  // }
+
+  ///////////////////////////////////////////////////
+  // 3. Processing sending message packets back to PC
+  if (serialSendBuf.buflen)
+  {
+    if (Serial.availableForWrite() > 100)
+    {
+      Serial.println(serialSendBuf.read());
+    }
+  }
+}
+
 //////////////////////////////////
 // loop_single_motor_test
 void loop_single_motor_test()

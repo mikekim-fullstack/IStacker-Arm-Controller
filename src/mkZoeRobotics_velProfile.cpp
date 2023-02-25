@@ -12,11 +12,13 @@ MKVelProfile mkVelProfile;
 
 extern MainOperation mkMainOperation;
 extern int motorID;
+extern SEL_MODE motionMode;
 // extern SPEEDRampData speedData[MAX_MOTOR_NUM];
 // extern KIN_DATA kinData[3];
 // extern MOTORCHANEL motorCh[3];
 
-static double DIST2STEP[4] = {16.0 * 2.0, 2291.83 * 2, 763.944 * 4.0, 32.0};                                   //[X, R1, R2, Z]
+// static double DIST2STEP[4] = {16.0 * 2.0, 2291.83 * 2, 763.944 * 4.0, 32.0}; // old                                  //[X, R1, R2, Z]
+static double DIST2STEP[4] = {16.0, 2291.831, 3055.775, 16.0};                                                 //[X, R1, R2, Z]
 static double STEP2DIST[4] = {1.0 / DIST2STEP[0], 1.0 / DIST2STEP[1], 1.0 / DIST2STEP[2], 1.0 / DIST2STEP[3]}; //[X, R1, R2, Z]
 
 extern POSData posData[4];
@@ -63,7 +65,9 @@ MOTOR_PARAMS MKVelProfile::motorParams[4] = {
 void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
 {
   int num = motorID;
+  motionMode = MODE_JOINT;
   speedData[num].activated = false;
+  speedData[num].startTime = 0;
   // activatedEE = -1;
 
   speedData[num].totalSteps = speedProfile.steps;
@@ -98,8 +102,10 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
 
   // double distance = 0.025 * steps; // [mm]
   //  activatedEE = -1;
+  motionMode = MODE_JOINT;
   speedData[num].activated = false;
   speedData[num].prevDir = 0;
+  speedData[num].startTime = 0;
   int dir = SIGN(distance);
   uint32_t steps = lround(fabs(distance) * motorParams[num].DIST2STEP);
 
@@ -180,6 +186,9 @@ void MKVelProfile::forKin(double L, double t1, double t2)
 bool MKVelProfile::invKin(double x, double y, double theta)
 {
   double ratio = (y - LINK_2 * sin(theta)) / (LINK_1);
+  // char str[125];
+  // sprintf(str, "kin; x=%1.2f, y=%1.2f, theta=%1.2f", x, y, theta);
+  // Serial.println(str);
   if (fabs(ratio) > 1.0)
     return false;
   kinParam.t1 = asin(ratio);
@@ -216,11 +225,17 @@ bool MKVelProfile::arcMotionIK(double arcR, double cenPosX, double cenPosY, doub
 // Linear Vector Approach
 int MKVelProfile::gen_linear_profile_old(LINEARProfile &linearProfile)
 {
+  motionMode = MODE_CARTESIAN;
   ///////////////////////////////////
   // EE1x=1193, EE1y=-148, EE2x=1193, EE2y=-401, EE1t=-1.5708,
   kinData[0].reset();
   kinData[1].reset();
   kinData[2].reset();
+
+  kinData[0].startTime = 0;
+  kinData[1].startTime = 0;
+  kinData[2].startTime = 0;
+  kinData[3].startTime = 0;
   // Test Data ++
   // linearProfile.EEx[1]=1193.031;
   // linearProfile.EEy[1]= -148.031;
@@ -401,6 +416,7 @@ int MKVelProfile::gen_linear_profile_old(LINEARProfile &linearProfile)
 #if 0
 int MKVelProfile::gen_linear_profile(LINEARProfile & linearProfile)
 {
+  motionMode=MODE_CARTESIAN;
   ///////////////////////////////////
 // EE1x=1193, EE1y=-148, EE2x=1193, EE2y=-401, EE1t=-1.5708,
 // kinData[0].reset();
@@ -591,11 +607,15 @@ else {
 // This approach is more stable than vectorApproach...
 int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
 {
-
+  motionMode = MODE_CARTESIAN;
   ///////////////////////////////////
   kinData[0].reset();
   kinData[1].reset();
   kinData[2].reset();
+  kinData[0].startTime = 0;
+  kinData[1].startTime = 0;
+  kinData[2].startTime = 0;
+  kinData[3].startTime = 0;
   double aCoEE[2][4], curEEPos[2];
   // bool isSameTrajectory=true;
 
@@ -838,10 +858,16 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
 int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
 {
 
+  motionMode = MODE_CARTESIAN;
   ///////////////////////////////////
   kinData[0].reset();
   kinData[1].reset();
   kinData[2].reset();
+  kinData[0].startTime = 0;
+  kinData[1].startTime = 0;
+  kinData[2].startTime = 0;
+  kinData[3].startTime = 0;
+
   double aCoEE[4], curEETh = 0;
   // bool isSameTrajectory=true;
   // double maxPos=0.0;
@@ -1023,6 +1049,7 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
 #if 0
 int MKVelProfile::gen_linear_profile_old(LINEARProfile & linearProfile)
 {
+  motionMode=MODE_CARTESIAN;
   ///////////////////////////////////
   kinData[0].reset();
   kinData[1].reset();
@@ -1321,6 +1348,7 @@ int MKVelProfile::gen_linear_profile_old(LINEARProfile & linearProfile)
 #if 0
 int MKVelProfile::gen_linear_profile(LINEARProfile & linearProfile)
 {
+  motionMode=MODE_CARTESIAN;
   ///////////////////////////////////
   double dx=fabs(linearProfile.EEx[1]-linearProfile.EEx[0]);
   double dy=-fabs(linearProfile.EEy[1]-linearProfile.EEy[0]);
@@ -1584,6 +1612,7 @@ int MKVelProfile::gen_linear_profile(LINEARProfile & linearProfile)
 #if 0
 int MKVelProfile::createArcMotion(double vel, double radius, double *cenPos, double EndEffectorAng , int nAng)
 {
+  motionMode=MODE_CARTESIAN;
   int8_t rotDir = SIGN(nAng);
   double deltaPos[3]={0}, residue[3]={0}, prevResidue[3]={0};
   double deltaPos_residue[3]={0};
@@ -1639,8 +1668,9 @@ int MKVelProfile::createArcMotion(double vel, double radius, double *cenPos, dou
 }
 #endif
 #if 0
-int MKVelProfile::gen_circl_profile( CIRCLEProfile & circleProfile)
+int MKVelProfile::gen_circle_profile( CIRCLEProfile & circleProfile)
 {
+  motionMode=MODE_CARTESIAN;
   // ++ deltaT_Lx is duration when EE rotate 1deg ++
   int8_t rotDir = SIGN(circleProfile.arcAng);
   double deltaPos[3]={0}, residue[3]={0}, prevResidue[3]={0};
@@ -1874,14 +1904,23 @@ int MKVelProfile::gen_circl_profile( CIRCLEProfile & circleProfile)
 }
 #endif
 #if 1
-int MKVelProfile::gen_circl_profile(CIRCLEProfile &circleProfile)
+int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
 {
+  char str[128];
+  motionMode = MODE_CARTESIAN;
+  kinData[0].startTime = 0;
+  kinData[1].startTime = 0;
+  kinData[2].startTime = 0;
+  kinData[3].startTime = 0;
+
+  double rest[3] = {0};
   // ++ deltaT_Lx is duration when EE rotate 1deg ++
   int8_t rotDir = SIGN(circleProfile.arcAng);
   double deltaPos[3] = {0}, residue[3] = {0}, prevResidue[3] = {0};
   double deltaPos_residue[3] = {0};
   double prevPos[3] = {0}, steps[3] = {0};
   double abs_sum_steps[3] = {0};
+  double sum_steps[3] = {0};
   double totalDistance[3] = {0};
   int index_step[3] = {0};
 
@@ -1889,14 +1928,15 @@ int MKVelProfile::gen_circl_profile(CIRCLEProfile &circleProfile)
   double sumdL[3] = {0}, sumDist[3] = {0};
   double deltaT_per_1deg = 1.0 / circleProfile.speed;
   double abs_step[3] = {0};
-  int acc_area = 36 + 10; // round(fabs(circleProfile.arcAng)*10.0/100.0); // acceleration area from start (x%)
-  int acc_ori_area = acc_area;
+  int acc_ori_area = 35; // round(fabs(circleProfile.arcAng)*10.0/100.0); // acceleration area from start (x%)
+  int acc_area = acc_ori_area;
+  int dec_area = 0;
   double deltaT = deltaT_per_1deg;
   // int acc_area[3] = {10};
   bool bCheckSum = true;
   // bool bDebug=0;
-  double sum_deltaPos[3] = {0}, sum_stepPos[3] = {0};
-  double diffSteps = 0;
+  double sum_deltaPos[3] = {0};
+
   double maxCn = -25.926 * (circleProfile.speed - 90) + 8000; // circleProfile.speed*120;
   /////////////////////////////////////////////////////////////////////////
   // Calculation for index 0
@@ -1911,16 +1951,12 @@ int MKVelProfile::gen_circl_profile(CIRCLEProfile &circleProfile)
   prevPos[2] = mkVelProfile.kinParam.t2;
   //////////////////////////////////////////////////////////////////////
   // -- Start to calcute the number of pulses, delay time counts (Cn) and direction of motors
-  double incrementRadius = circleProfile.radius / circleProfile.arcAng;
   for (int n = 0; n < circleProfile.arcAng; n++)
   {
     //-------------------------------------------------------//
     //////////////////////////////////////////////////////////
     // Calculate the I.K.
     //////////////////////////////////////////////////////////
-    //  the I.K.
-    // if(!mkVelProfile.arcMotionIK(incrementRadius*(circleProfile.arcAng-n) , circleProfile.cenPosX, circleProfile.cenPosY,
-    //                              circleProfile.EETheta*DEG2RAD ,  (n+1)*DEG2RAD * rotDir))
     if (!mkVelProfile.arcMotionIK(circleProfile.radius, circleProfile.cenPosX, circleProfile.cenPosY,
                                   circleProfile.EETheta * DEG2RAD, (n + 1) * DEG2RAD * rotDir))
     {
@@ -1929,22 +1965,22 @@ int MKVelProfile::gen_circl_profile(CIRCLEProfile &circleProfile)
     }
 
     //////////////////////////////////////////////////
-    // Handling Acceleration and Deceleration by adding more time
-    if (n < acc_ori_area - 20)
+
+    if (n < acc_ori_area) // acc_ori_area==36
     {
-      deltaT = deltaT_per_1deg * (acc_area)*0.08;
+      deltaT = deltaT_per_1deg * (1 + (acc_area)*0.08);
       acc_area = acc_area - 1;
     }
-    else if (n > (circleProfile.arcAng - acc_ori_area + 10))
+    else if (n >= (circleProfile.arcAng - acc_ori_area))
     {
-      deltaT = deltaT_per_1deg * (acc_area)*0.08;
-      acc_area = acc_area + 1;
+      deltaT = deltaT_per_1deg * (1 + (dec_area)*0.08);
+      dec_area = dec_area + 1;
     }
     else
     {
       deltaT = deltaT_per_1deg;
-      acc_area = 10;
     }
+
     ////////////////////////////////////////////////
     // Handing 3 motors...
     for (int CH = 0; CH < 3; CH++)
@@ -1990,61 +2026,52 @@ int MKVelProfile::gen_circl_profile(CIRCLEProfile &circleProfile)
         sumdL[CH] = sumdL[CH] + fabs(deltaPosPrev[CH]);
         deltaPos_residue[CH] = deltaPos[CH] + SIGN(deltaPos[CH]) * (sumdL[CH] - sumDist[CH]);
       }
+
       deltaPosPrev[CH] = deltaPos[CH];
       abs_step[CH] = fabs(DIST2STEP[CH] * deltaPos_residue[CH]);
       // if(CH>0)abs_step[CH]=0;//test...
       if (abs_step[CH] >= 1.0)
       {
-        steps[CH] = SIGN(deltaPos[CH]) * round(abs_step[CH]);
-        ;
+        steps[CH] = int(abs_step[CH]);
       }
       else
       {
         steps[CH] = 0;
       }
-      abs_sum_steps[CH] += fabs(steps[CH]);
-      //--------------------------------------------------------------------//
-      // Based on number of steps, calcuate Cn(count for delay) and direction
-      // of motor and number of steps for this duration...
-      //  if (steps[CH] == 0) {
-      //   if(n==0) {
-      //     kinData[CH].motionData[index_step[CH]].Cn = 2980;//8000; // [mm]
-      //     kinData[CH].motionData[index_step[CH]].dir = SIGN(deltaPos[CH]);
-      //   } else {
-      //     // Delay time is critical to syncronize 3 axis when step is zeros..
-      //     // Cn value is function of deltaT...
-      //     kinData[CH].motionData[index_step[CH]].Cn = kinData[CH].motionData[index_step[CH]-1].Cn+100;//8200;//kinData[CH].motionData[index_step[CH]-1].Cn+200*0;
-      //     kinData[CH].motionData[index_step[CH]].dir = kinData[CH].motionData[index_step[CH]-1].dir;
-      //   }
-      // }
-      // else
-      // {
-      //   kinData[CH].motionData[index_step[CH]].Cn = int(tick_freq * deltaT / fabs(steps[CH])+0.5);
-      //   kinData[CH].motionData[index_step[CH]].steps = int(fabs(steps[CH])+0.5);
-      //   kinData[CH].motionData[index_step[CH]].dir = SIGN(deltaPos[CH]); // stepper motor direction...
-      // }
-      ///////////////////////////////////////////////////////
+      abs_sum_steps[CH] += (steps[CH]);
+      sum_steps[CH] += (steps[CH]);
+
       if (steps[CH] == 0)
       {
+
         if (abs_step[CH] < 0.01)
         {
+          // char str[128];
+          // sprintf(str, "maxCn=%d", maxCn);
           kinData[CH].motionData[index_step[CH]].Cn = maxCn;
         }
         else
         {
-          int temp = floor(tick_freq * deltaT / fabs(abs_step[CH]) + 0.5);
+          float temp1 = (tick_freq * deltaT / fabs(abs_step[CH]) + rest[CH]);
+          int temp = int(temp1);
+          rest[CH] = temp1 - temp;
+          // char str[128];
+          // sprintf(str, "maxCn_temp=%d", temp);
           if (temp >= maxCn)
             temp = maxCn;
           kinData[CH].motionData[index_step[CH]].Cn = temp;
         }
-        // kinData[CH].motionData[index_step[CH]].Cn=2000;//test
         kinData[CH].motionData[index_step[CH]].steps = 0;
         kinData[CH].motionData[index_step[CH]].dir = SIGN(deltaPos[CH]);
       }
       else
       {
-        kinData[CH].motionData[index_step[CH]].Cn = int(tick_freq * deltaT / fabs(abs_step[CH]) + 0.5);
-        kinData[CH].motionData[index_step[CH]].steps = int(fabs(steps[CH]) + 0.5);
+        float temp1 = (tick_freq * deltaT / fabs(abs_step[CH]) + rest[CH]);
+        int temp = int(temp1);
+        rest[CH] = temp1 - temp;
+
+        kinData[CH].motionData[index_step[CH]].Cn = temp;
+        kinData[CH].motionData[index_step[CH]].steps = steps[CH];
         kinData[CH].motionData[index_step[CH]].dir = SIGN(deltaPos[CH]); // stepper motor direction...
       }
 
@@ -2058,28 +2085,175 @@ int MKVelProfile::gen_circl_profile(CIRCLEProfile &circleProfile)
   }
   for (int CH = 0; CH < 3; CH++)
   {
-    kinData[CH].totalSteps = floor(totalDistance[CH] * DIST2STEP[CH] + 0.5);
+    kinData[CH].totalSteps = int(totalDistance[CH] * DIST2STEP[CH]);
     kinData[CH].dataSize = index_step[CH];
+
     if (kinData[CH].totalSteps != abs_sum_steps[CH])
       bCheckSum = false;
   }
-  // if(n<acc_dec_area)                              acc_area--;
-  // else if(n> (circleProfile.arcAng-acc_dec_area)) acc_area++;
-  // else                                            acc_area=2;
 
+  //------------------------------- Final Process ----------------------------------
+  // After descretized contineuous data, check if there is any round off errors.
+  // If there exists, correct it by adding or removing steps.
+
+  int sum[3] = {0};
+  int diffEndStartStep[3] = {0};
+  float startPos[3], endPos[3], diffStep[3];
+
+  // Sum up all steps with motor's direction.
+  for (int ch = 0; ch < 3; ch++)
+  {
+    for (int j = 0; j < index_step[ch]; j++)
+    {
+      sum[ch] = sum[ch] + kinData[ch].motionData[j].dir * kinData[ch].motionData[j].steps;
+    }
+  }
+
+  // Get a stared joint position by IK
+  mkVelProfile.arcMotionIK(circleProfile.radius, circleProfile.cenPosX, circleProfile.cenPosY,
+                           circleProfile.EETheta * DEG2RAD, 0);
+  startPos[0] = mkVelProfile.kinParam.L;
+  startPos[1] = mkVelProfile.kinParam.t1;
+  startPos[2] = mkVelProfile.kinParam.t2;
+
+  // Get a end joint position by IK
+  mkVelProfile.arcMotionIK(circleProfile.radius, circleProfile.cenPosX, circleProfile.cenPosY,
+                           circleProfile.EETheta * DEG2RAD, circleProfile.arcAng * DEG2RAD);
+
+  endPos[0] = mkVelProfile.kinParam.L;
+  endPos[1] = mkVelProfile.kinParam.t1;
+  endPos[2] = mkVelProfile.kinParam.t2;
+
+  // Compare sum of steps(with direction) with difference between start and end position by IK.
+  for (int ch = 0; ch < 3; ch++)
+  {
+    diffEndStartStep[ch] = round((endPos[ch] - startPos[ch]) * DIST2STEP[ch]);
+    diffStep[ch] = sum[ch] - diffEndStartStep[ch];
+  }
+
+  // If there is difference with total sum of dir*step
+  // compensate dismatch steps
+  for (int ch = 0; ch < 3; ch++)
+  {
+    if (fabs(diffStep[ch]) >= 0.99)
+    {
+      int count = abs(diffStep[ch]);
+      for (int i = 0; i < index_step[ch]; i++)
+      {
+        if (count > 0 && kinData[ch].motionData[i].steps > 1)
+        {
+
+          if (diffEndStartStep[ch] == 0)
+          {
+            if (kinData[ch].motionData[i].dir == SIGN(diffStep[ch]))
+            {
+              count--;
+              kinData[ch].motionData[i].steps--;
+              kinData[ch].totalSteps--;
+            }
+            if (count == 0)
+              break;
+          }
+          else if (diffEndStartStep[ch] > 0)
+          {
+            if (SIGN(diffStep[ch]) > 0 && kinData[ch].motionData[i].dir > 0)
+            {
+              count--;
+              kinData[ch].motionData[i].steps--;
+              kinData[ch].totalSteps--;
+            }
+            else if (SIGN(diffStep[ch]) < 0 && kinData[ch].motionData[i].dir > 0)
+            {
+              count--;
+              kinData[ch].motionData[i].steps++;
+              kinData[ch].totalSteps++;
+            }
+          }
+          else
+          {
+            if (SIGN(diffStep[ch]) > 0 && kinData[ch].motionData[i].dir < 0)
+            {
+              count--;
+              kinData[ch].motionData[i].steps++;
+              kinData[ch].totalSteps++;
+            }
+            else if (SIGN(diffStep[ch]) < 0 && kinData[ch].motionData[i].dir < 0)
+            {
+              count--;
+              kinData[ch].motionData[i].steps--;
+              kinData[ch].totalSteps--;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /*
+  // Adding extra dummy data
+  // for (int ch = 0; ch < 3; ch++)
+  // {
+  //   for (int j = 0; j < 2; j++)
+  //   {
+
+  //     kinData[ch].motionData[index_step[ch]].steps = 0;
+  //     kinData[ch].motionData[index_step[ch]].Cn = kinData[ch].motionData[index_step[ch] - 1].Cn;
+  //     kinData[ch].motionData[index_step[ch]].dir = kinData[ch].motionData[index_step[ch] - 1].dir * 0;
+  //     kinData[ch].dataSize = kinData[ch].dataSize + 1;
+  //     index_step[ch]++;
+  //   }
+  // }
+  int sum = 0;
+  int ch = 0;
+  // for (int j = 0; j < index_step[ch]; j++)
+  // {
+  //   sum = sum + kinData[ch].motionData[j].dir;
+  //   sprintf(str, "Cn[%d]=,%d, dir=,%d, steps=,%d", j, kinData[ch].motionData[j].Cn, kinData[ch].motionData[j].dir, kinData[ch].motionData[j].steps);
+  //   Serial.println(str);
+  // }
+
+  sprintf(str, "ch=%d, dir_sum=%d, sum_steps=%d, %d, %d", ch, sum, sum_steps[0], sum_steps[1], sum_steps[2]);
+  Serial.println(str);
+
+  ch = 1;
+
+  for (int j = 0; j < index_step[ch]; j++)
+  {
+    sum = sum + kinData[ch].motionData[j].dir;
+    sprintf(str, "Cn[%d]=,%d, dir=,%d, steps=,%d", j, kinData[ch].motionData[j].Cn, kinData[ch].motionData[j].dir, kinData[ch].motionData[j].steps);
+    Serial.println(str);
+  }
+
+  sprintf(str, "ch=%d, dir_sum=%d, sum_steps=%d, %d, %d", ch, sum, sum_steps[0], sum_steps[1], sum_steps[2]);
+  Serial.println(str);
+  ch = 2;
+  // for (int j = 0; j < index_step[ch]; j++)
+  // {
+  //   sum = sum + kinData[ch].motionData[j].dir;
+  //   sprintf(str, "Cn[%d]=,%d, dir=,%d, steps=,%d", j, kinData[ch].motionData[j].Cn, kinData[ch].motionData[j].dir, kinData[ch].motionData[j].steps);
+  //   Serial.println(str);
+  // }
+  sprintf(str, "ch=%d, dir_sum=%d, sum_steps=%d, %d, %d", ch, sum, sum_steps[0], sum_steps[1], sum_steps[2]);
+  Serial.println(str);
+*/
   if (bCheckSum)
   {
     return 1;
   } // Calculation is right
   else
   {
-    return 1; // ERROR+3;
-  }           // total steps and sum of step is different (Calculation is wrong)...
+    return ERROR + 3;
+  } // total steps and sum of step is different (Calculation is wrong)...
 }
 #endif
 ///////////////////////////////////////////////////////////////////
 int MKVelProfile::gen_spiral_profile(SPIRALProfile &spiralProfile)
 {
+  motionMode = MODE_CARTESIAN;
+  kinData[0].startTime = 0;
+  kinData[1].startTime = 0;
+  kinData[2].startTime = 0;
+  kinData[3].startTime = 0;
   // ++ deltaT_Lx is duration when EE rotate 1deg ++
   int8_t rotDir = SIGN(spiralProfile.arcAng);
   double deltaPos[4] = {0}; //, residue[4]={0}, prevResidue[4]={0};
