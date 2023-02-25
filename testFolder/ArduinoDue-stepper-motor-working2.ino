@@ -192,7 +192,7 @@ void TC0_Handler_test()
 
   PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
   speedData[0].pulseTick = true;
-  mkMainOperation.startTimer(0 + 4, TICK_PRESCALE, 100000);
+  mkMainOperation.elapsedTimer(0 + 4, TICK_PRESCALE, 100000);
 
   // if (Count0 == 0)
   //   TC0->TC_CHANNEL[0].TC_RC = 656250 * 2;
@@ -251,7 +251,7 @@ void TC0_Handler() // 0: X-Axis
       // Pulse: Start Step Up.
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
 
       // Set a step counter.
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
@@ -269,7 +269,7 @@ void TC0_Handler() // 0: X-Axis
       // Pulse: Start Step Up.
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
 
       // Set a step counter.
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
@@ -282,7 +282,7 @@ void TC0_Handler() // 0: X-Axis
       // Pulse: Start Step Up.
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
 
       // Set a step counter.
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
@@ -300,7 +300,7 @@ void TC0_Handler() // 0: X-Axis
       // Pulse: Start Step Up.
       PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       speedData[mID].pulseTick = true;
-      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
 
       // Set a step counter.
       TC0->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;

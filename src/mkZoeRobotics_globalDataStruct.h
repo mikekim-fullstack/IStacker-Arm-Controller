@@ -165,8 +165,7 @@ typedef struct _speedRampData
   volatile int8_t dir = 0;     // 1:CCW, -1:CW
   volatile int8_t prevDir = 0; // 1:CCW, -1:CW
 
-  uint32_t startTime = 0;
-  uint32_t endTime = 0;
+  uint32_t elapsedTime = 0;
 
   void reset()
   {
@@ -212,8 +211,8 @@ typedef struct _KINEMATICS_DATA_
   int dataSize = 0;
   // int32_t finalSumSteps = 0;
   int32_t totalSteps = 0;
-  uint32_t startTime = 0;
-  uint32_t endTime = 0;
+  uint32_t elapsedTime = 0;
+
   uint32_t inline getMotionCn()
   {
     return motionData[indexMotionData].Cn;

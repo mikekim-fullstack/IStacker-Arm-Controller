@@ -67,7 +67,7 @@ void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
   int num = motorID;
   motionMode = MODE_JOINT;
   speedData[num].activated = false;
-  speedData[num].startTime = 0;
+  speedData[num].elapsedTime = 0;
   // activatedEE = -1;
 
   speedData[num].totalSteps = speedProfile.steps;
@@ -105,7 +105,7 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   motionMode = MODE_JOINT;
   speedData[num].activated = false;
   speedData[num].prevDir = 0;
-  speedData[num].startTime = 0;
+  speedData[num].elapsedTime = 0;
   int dir = SIGN(distance);
   uint32_t steps = lround(fabs(distance) * motorParams[num].DIST2STEP);
 
@@ -232,10 +232,10 @@ int MKVelProfile::gen_linear_profile_old(LINEARProfile &linearProfile)
   kinData[1].reset();
   kinData[2].reset();
 
-  kinData[0].startTime = 0;
-  kinData[1].startTime = 0;
-  kinData[2].startTime = 0;
-  kinData[3].startTime = 0;
+  kinData[0].elapsedTime = 0;
+  kinData[1].elapsedTime = 0;
+  kinData[2].elapsedTime = 0;
+  kinData[3].elapsedTime = 0;
   // Test Data ++
   // linearProfile.EEx[1]=1193.031;
   // linearProfile.EEy[1]= -148.031;
@@ -612,10 +612,10 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
   kinData[0].reset();
   kinData[1].reset();
   kinData[2].reset();
-  kinData[0].startTime = 0;
-  kinData[1].startTime = 0;
-  kinData[2].startTime = 0;
-  kinData[3].startTime = 0;
+  kinData[0].elapsedTime = 0;
+  kinData[1].elapsedTime = 0;
+  kinData[2].elapsedTime = 0;
+  kinData[3].elapsedTime = 0;
   double aCoEE[2][4], curEEPos[2];
   // bool isSameTrajectory=true;
 
@@ -863,10 +863,10 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
   kinData[0].reset();
   kinData[1].reset();
   kinData[2].reset();
-  kinData[0].startTime = 0;
-  kinData[1].startTime = 0;
-  kinData[2].startTime = 0;
-  kinData[3].startTime = 0;
+  kinData[0].elapsedTime = 0;
+  kinData[1].elapsedTime = 0;
+  kinData[2].elapsedTime = 0;
+  kinData[3].elapsedTime = 0;
 
   double aCoEE[4], curEETh = 0;
   // bool isSameTrajectory=true;
@@ -1908,10 +1908,10 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
 {
   char str[128];
   motionMode = MODE_CARTESIAN;
-  kinData[0].startTime = 0;
-  kinData[1].startTime = 0;
-  kinData[2].startTime = 0;
-  kinData[3].startTime = 0;
+  kinData[0].elapsedTime = 0;
+  kinData[1].elapsedTime = 0;
+  kinData[2].elapsedTime = 0;
+  kinData[3].elapsedTime = 0;
 
   double rest[3] = {0};
   // ++ deltaT_Lx is duration when EE rotate 1deg ++
@@ -2250,10 +2250,10 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
 int MKVelProfile::gen_spiral_profile(SPIRALProfile &spiralProfile)
 {
   motionMode = MODE_CARTESIAN;
-  kinData[0].startTime = 0;
-  kinData[1].startTime = 0;
-  kinData[2].startTime = 0;
-  kinData[3].startTime = 0;
+  kinData[0].elapsedTime = 0;
+  kinData[1].elapsedTime = 0;
+  kinData[2].elapsedTime = 0;
+  kinData[3].elapsedTime = 0;
   // ++ deltaT_Lx is duration when EE rotate 1deg ++
   int8_t rotDir = SIGN(spiralProfile.arcAng);
   double deltaPos[4] = {0}; //, residue[4]={0}, prevResidue[4]={0};

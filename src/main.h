@@ -438,11 +438,11 @@ public:
         uint32_t elapsedTime = 0;
         if (motionMode == MODE_JOINT)
         {
-            elapsedTime = speedData[motorID].startTime * 0.01;
+            elapsedTime = speedData[motorID].elapsedTime * 0.01;
         }
         else if (motionMode == MODE_CARTESIAN)
         {
-            elapsedTime = kinData[motorID].startTime * 0.01;
+            elapsedTime = kinData[motorID].elapsedTime * 0.01;
         }
         sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d",
                 RC_STATUS,
@@ -463,11 +463,11 @@ public:
         int elapsedTime = 0;
         if (motionMode == MODE_JOINT)
         {
-            elapsedTime = speedData[mID].startTime * 0.01;
+            elapsedTime = speedData[mID].elapsedTime * 0.01;
         }
         else if (motionMode == MODE_CARTESIAN)
         {
-            elapsedTime = kinData[mID].startTime * 0.01;
+            elapsedTime = kinData[mID].elapsedTime * 0.01;
         }
         sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d ",
                 RC_STATUS,
@@ -543,7 +543,7 @@ public:
         // {
         //     // kinData[motorID].endTime = millis();
         //     // char str[128];
-        //     // sprintf(str, "starttime=%dms, endTime=%d", kinData[motorID].startTime *0.001, kinData[motorID].endTime);
+        //     // sprintf(str, "starttime=%dms, endTime=%d", kinData[motorID].elapsedTime *0.001, kinData[motorID].endTime);
         //     // serialSendBuf.write(str);
         // }
 

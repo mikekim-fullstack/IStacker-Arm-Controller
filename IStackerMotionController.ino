@@ -337,7 +337,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
     // volatile uint16_t *index = &kinData[motorNum].indexMotionData;
     // if (kinData[motorNum].indexMotionData == 0)
     // {
-    //   // kinData[motorNum].startTime = millis();
+    //   // kinData[motorNum].elapsedTime = millis();
     //   // sprintf(str, "start=%d", motorNum);
     //   // // serialSendBuf.write(str);
     //   // Serial.println(str);
@@ -450,7 +450,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       mkMainOperation.processFinishingMove(motorNum);
       return;
     }
-    // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000);
+    // mkMainOperation.elapsedTimer(motorNum + 4, TICK_PRESCALE, 100000);
 
     return;
 
@@ -458,7 +458,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
     tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
     digitalWrite(PIN_PULSE, HIGH);
     kinData[motorNum].pulseTick = true;
-    // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000);
+    // mkMainOperation.elapsedTimer(motorNum + 4, TICK_PRESCALE, 100000);
 
     if (kinData[motorNum].indexMotionData == kinData[motorNum].dataSize - 1)
     {
@@ -512,7 +512,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       // Serial.println(str);
       // For measuring the elapsed time.
 
-      // speedData[motorNum].startTime = millis();
+      // speedData[motorNum].elapsedTime = millis();
       // Set a step counter.
       tc->TC_CHANNEL[tcChannel].TC_RC = speedData[motorNum].Cn;
       // tc->TC_CHANNEL[tcChannel].TC_RC = 40;
@@ -523,7 +523,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       speedData[motorNum].pulseTick = true;
       digitalWrite(PIN_PULSE, HIGH);
       return;
-      // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       // set10mmsPulseTimer(motorNum + 4);
       // return;
     }
@@ -547,7 +547,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       digitalWrite(PIN_PULSE, HIGH);
       speedData[motorNum].pulseTick = true;
       return;
-      // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000);
+      // mkMainOperation.elapsedTimer(motorNum + 4, TICK_PRESCALE, 100000);
       // set10mmsPulseTimer(motorNum + 4);
       //      return;
     }
@@ -566,7 +566,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       digitalWrite(PIN_PULSE, HIGH);
       speedData[motorNum].pulseTick = true;
       return;
-      // //mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // //mkMainOperation.elapsedTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       // set10mmsPulseTimer(motorNum + 4);
       // return;
     }
@@ -588,7 +588,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       // PIOC->PIO_SODR = 1u << 22; // PIN8 (high)
       digitalWrite(PIN_PULSE, HIGH);
       speedData[motorNum].pulseTick = true;
-      // mkMainOperation.startTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(motorNum + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       return;
       // set10mmsPulseTimer(motorNum + 4);
       // return;
@@ -605,7 +605,7 @@ volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   if (kinData[motorNum].activated == true)
   {
     volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
-    kinData[motorNum].startTime++;
+    kinData[motorNum].elapsedTime++;
     if (kinData[motorNum].pulseTick)
     {
       kinData[motorNum].pulseTick = false;
@@ -619,7 +619,7 @@ volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   }
   else if (speedData[motorNum].activated)
   {
-    speedData[motorNum].startTime++;
+    speedData[motorNum].elapsedTime++;
     volatile int dir = kinData[motorNum].getMotionDir();
     if (dir != kinData[motorNum].prevDir)
     {
@@ -736,7 +736,7 @@ void TC0_Handler() // 0: X-Axis
       kinData[mID].step_count++; // should uncomment
       digitalWrite(PIN_X_PULSE, HIGH);
       kinData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 1, 5);
       ////////////////////////////////////////////////////////////
       if (kinData[mID].step_count == kinData[mID].getMotionSteps())
@@ -798,7 +798,7 @@ void TC0_Handler() // 0: X-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_X_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       //  Set Timer for pulse
       set10mmsPulseTimer(TC1, 1, 4);
 
@@ -820,7 +820,7 @@ void TC0_Handler() // 0: X-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_X_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 1, 4);
 
       return;
@@ -835,7 +835,7 @@ void TC0_Handler() // 0: X-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_X_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 1, 4);
 
       return;
@@ -856,7 +856,7 @@ void TC0_Handler() // 0: X-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_X_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 1, 4);
 
       return;
@@ -922,7 +922,7 @@ void TC1_Handler() // 1: R1-Axis
       kinData[mID].step_count++; // should uncomment
       digitalWrite(PIN_R1_PULSE, HIGH);
       kinData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 2, 5);
       ////////////////////////////////////////////////////////////
       if (kinData[mID].step_count == kinData[mID].getMotionSteps())
@@ -984,7 +984,7 @@ void TC1_Handler() // 1: R1-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R1_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 2, 5);
 
       return;
@@ -1005,7 +1005,7 @@ void TC1_Handler() // 1: R1-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R1_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 2, 5);
 
       return;
@@ -1020,7 +1020,7 @@ void TC1_Handler() // 1: R1-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R1_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 2, 5);
 
       return;
@@ -1041,7 +1041,7 @@ void TC1_Handler() // 1: R1-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R1_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC1, 2, 5);
 
       return;
@@ -1107,7 +1107,7 @@ void TC2_Handler() // 2: R2-Axis
       kinData[mID].step_count++; // should uncomment
       digitalWrite(PIN_R1_PULSE, HIGH);
       kinData[mID].pulseTick = true;
-      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       ////////////////////////////////////////////////////////////
       if (kinData[mID].step_count == kinData[mID].getMotionSteps())
       {
@@ -1166,7 +1166,7 @@ void TC2_Handler() // 2: R2-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R2_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 0, 6);
 
       return;
@@ -1188,7 +1188,7 @@ void TC2_Handler() // 2: R2-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R2_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 0, 6);
 
       return;
@@ -1203,7 +1203,7 @@ void TC2_Handler() // 2: R2-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R2_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 0, 6);
 
       return;
@@ -1223,7 +1223,7 @@ void TC2_Handler() // 2: R2-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_R2_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 0, 6);
 
       return;
@@ -1289,7 +1289,7 @@ void TC3_Handler() // 3: Z-Axis
       kinData[mID].step_count++; // should uncomment
       digitalWrite(PIN_Z_PULSE, HIGH);
       kinData[mID].pulseTick = true;
-      mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       ////////////////////////////////////////////////////////////
       if (kinData[mID].step_count == kinData[mID].getMotionSteps())
       {
@@ -1348,7 +1348,7 @@ void TC3_Handler() // 3: Z-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_Z_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 2, 7);
       // Set a step counter.
       TC1->TC_CHANNEL[0].TC_RC = speedData[mID].Cn;
@@ -1369,7 +1369,7 @@ void TC3_Handler() // 3: Z-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_Z_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 2, 7);
 
       return;
@@ -1384,7 +1384,7 @@ void TC3_Handler() // 3: Z-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_Z_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 2, 7);
 
       return;
@@ -1405,7 +1405,7 @@ void TC3_Handler() // 3: Z-Axis
       speedData[mID].step_count++;
       digitalWrite(PIN_Z_PULSE, HIGH);
       speedData[mID].pulseTick = true;
-      // mkMainOperation.startTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
+      // mkMainOperation.elapsedTimer(mID + 4, TICK_PRESCALE, 100000); // after 10msec it will be low (Step Down)
       set10mmsPulseTimer(TC2, 2, 7);
 
       return;
@@ -1807,7 +1807,7 @@ void loop_multi_motor_speed()
           else
             mkVelProfile.gen_speed_profile(n, -distance, speed, accel, decel);
           // delay(10);
-          speedData[n].startTime = 0;
+          speedData[n].elapsedTime = 0;
           speedData[n].activated = true;
         }
       }
@@ -1894,9 +1894,8 @@ void loop()
         int n = nn[i];
         if (posData[n].OperationMode == STOPPED)
         {
-          kinData[n].startTime = 0; // millis();
-          kinData[n].endTime = 0;   // millis();
-          sprintf(str, "motorNumber:%d started at %d", n, kinData[n].startTime);
+          kinData[n].elapsedTime = 0; // millis();
+          sprintf(str, "motorNumber:%d started at %d", n, kinData[n].elapsedTime);
           Serial.println(str);
           posData[n].OperationMode = MOVING;
 
