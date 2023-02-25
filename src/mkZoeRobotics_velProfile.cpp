@@ -2087,9 +2087,6 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
   {
     kinData[CH].totalSteps = int(totalDistance[CH] * DIST2STEP[CH]);
     kinData[CH].dataSize = index_step[CH];
-
-    if (kinData[CH].totalSteps != abs_sum_steps[CH])
-      bCheckSum = false;
   }
 
   //------------------------------- Final Process ----------------------------------
@@ -2236,6 +2233,28 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
   sprintf(str, "ch=%d, dir_sum=%d, sum_steps=%d, %d, %d", ch, sum, sum_steps[0], sum_steps[1], sum_steps[2]);
   Serial.println(str);
 */
+  for (int CH = 0; CH < 3; CH++)
+  {
+    int diff = kinData[CH].totalSteps - int(totalDistance[CH] * DIST2STEP[CH]);
+
+    if (abs(diff) > 0.01)
+      bCheckSum = false;
+  }
+
+  // // Adding extra dummy data
+  // for (int ch = 0; ch < 3; ch++)
+  // {
+  //   int size = kinData[ch].dataSize;
+  //   for (int j = 0; j < 1; j++)
+  //   {
+
+  //     kinData[ch].motionData[size].steps = 0;
+  //     kinData[ch].motionData[size].Cn = kinData[ch].motionData[size - 1].Cn;
+  //     kinData[ch].motionData[size].dir = 0;
+  //     kinData[ch].dataSize++;
+  //   }
+  // }
+
   if (bCheckSum)
   {
     return 1;

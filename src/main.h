@@ -17,6 +17,7 @@ extern SEL_MODE motionMode;
 class MainOperation
 {
 public:
+    float timeConversion = 0.015238; // to the ms
     int8_t isAnyMotion = 0;
     int cupSWDelayTime = 25;
     volatile bool bCupDropSignal = false;
@@ -206,7 +207,7 @@ public:
         startTimer(2, TICK_PRESCALE, 1); // Q
         startTimer(3, TICK_PRESCALE, 1); // R
 
-        //----- pluse 10microsec
+        //----- pluse 15.238 microsec
         startTimer(4, TICK_PRESCALE, 65625); // R
         startTimer(5, TICK_PRESCALE, 65625); // R
         startTimer(6, TICK_PRESCALE, 65625); // R
@@ -438,11 +439,11 @@ public:
         uint32_t elapsedTime = 0;
         if (motionMode == MODE_JOINT)
         {
-            elapsedTime = speedData[motorID].elapsedTime * 0.01;
+            elapsedTime = speedData[motorID].elapsedTime * timeConversion;
         }
         else if (motionMode == MODE_CARTESIAN)
         {
-            elapsedTime = kinData[motorID].elapsedTime * 0.01;
+            elapsedTime = kinData[motorID].elapsedTime * timeConversion;
         }
         sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d",
                 RC_STATUS,
@@ -463,11 +464,11 @@ public:
         int elapsedTime = 0;
         if (motionMode == MODE_JOINT)
         {
-            elapsedTime = speedData[mID].elapsedTime * 0.01;
+            elapsedTime = speedData[mID].elapsedTime * timeConversion;
         }
         else if (motionMode == MODE_CARTESIAN)
         {
-            elapsedTime = kinData[mID].elapsedTime * 0.01;
+            elapsedTime = kinData[mID].elapsedTime * timeConversion;
         }
         sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d ",
                 RC_STATUS,
