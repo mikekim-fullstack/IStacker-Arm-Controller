@@ -21,9 +21,9 @@ extern SEL_MODE motionMode;
 #define PIN_R1_DIR 41
 #define PIN_R1_PULSE 40
 #define PIN_R1_HOME_SW 39
-#define PIN_R1_DIR 11  // 41
-#define PIN_R1_PULSE 8 // 40
-#define PIN_R1_HOME_SW 39
+// #define PIN_R1_DIR 11  // 41
+// #define PIN_R1_PULSE 8 // 40
+// #define PIN_R1_HOME_SW 39
 
 // ********* Motor #2 **************
 #define PIN_R2_DIR 35
