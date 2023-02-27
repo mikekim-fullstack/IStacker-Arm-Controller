@@ -108,4 +108,6 @@
 #define MAX_CMD_SIZE 96
 #endif
 
+#define MIN_DELAY_COUNT_CN 55
+
 #endif

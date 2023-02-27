@@ -205,10 +205,15 @@ int MKVelProfile::discretizeDataForStepperMotor(MKVelProfile &mkVelProfile, int 
       kinData[CH].motionData[index_step[CH]].dir = SIGN(deltaPos[CH]); // stepper motor direction...
     }
 
-    // if(CH>0)kinData[CH].motionData[index_step[CH]].Cn=0;//test...
+    if (kinData[CH].motionData[index_step[CH]].Cn <= MIN_DELAY_COUNT_CN)
+    {
+      // Timer Counter can't hadle this speed with the inside calculation.
+      return ERROR_SET_SPEED_TOO_FAST_CN;
+    }
 
     sumDist[CH] = sumDist[CH] + kinData[CH].motionData[index_step[CH]].steps * STEP2DIST[CH];
     index_step[CH]++;
+
     if (index_step[CH] >= MAX_MOTIONDATA_SIZE - 1)
       return ERROR_SIZE;
   } // --------- for(CH)
@@ -284,7 +289,7 @@ int MKVelProfile::calibrateDiscretizedData(int nAxis, double totalDistance[],
 
     sprintf(str, "Difference step: X=[%d], R1=[%d], R2=[%d], Z=[%d], \n", int(diffStep[0]), int(diffStep[1]), int(diffStep[2]), int(diffStep[3]));
     Serial.print(str);
-    }
+  }
 
   // If there is difference with total sum of dir*step
   // compensate dismatch steps
@@ -529,10 +534,10 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
 
   if (linearProfile.Vel < 60)
   {
-    return ERROR + 10; // Too small velocity...
+    return ERROR_SET_SPEED_TOO_SLOW; // Too small velocity...
   }
   if (distEE < 1.0)
-    return ERROR + 6; // too small movement...
+    return ERROR_MOVE_TOO_SMALL; // too small movement...
   if (distEE <= 150)
     linearProfile.Vel *= 0.65;
   double Tf = distEE / linearProfile.Vel;
@@ -564,7 +569,7 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
   if (!mkVelProfile.invKin(linearProfile.EEx[0], linearProfile.EEy[0], linearProfile.EETheta))
   {
     // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-    return ERROR_IK_NO_SOLUTION + 1;
+    return ERROR_IK_NO_SOLUTION_INITAL;
   }
   prevPos[0] = mkVelProfile.kinParam.L; // Calculated by arcMotionIK (initial deltaPosue)
   prevPos[1] = mkVelProfile.kinParam.t1;
@@ -590,7 +595,7 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
     if (!mkVelProfile.invKin(curEEPos[0], curEEPos[1], linearProfile.EETheta))
     {
       // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-      return ERROR_IK_NO_SOLUTION + 2;
+      return ERROR_IK_NO_SOLUTION_IN_LOOP;
     }
 
     ////////////////////////////////////////////////
@@ -692,7 +697,7 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
   if (!mkVelProfile.invKin(eeRotationProfile.EEx, eeRotationProfile.EEy, eeRotationProfile.EETheta[0]))
   {
     // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-    return ERROR_IK_NO_SOLUTION + 1;
+    return ERROR_IK_NO_SOLUTION_INITAL;
   }
   prevPos[0] = mkVelProfile.kinParam.L; // Calculated by arcMotionIK (initial deltaPosue)
   prevPos[1] = mkVelProfile.kinParam.t1;
@@ -713,7 +718,7 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
     if (!mkVelProfile.invKin(eeRotationProfile.EEx, eeRotationProfile.EEy, curEETh))
     {
       // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-      return ERROR_IK_NO_SOLUTION + 2;
+      return ERROR_IK_NO_SOLUTION_IN_LOOP;
     }
 
     ////////////////////////////////////////////////
@@ -795,7 +800,7 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
                                 circleProfile.EETheta * DEG2RAD, 0))
   {
     // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-    return ERROR_IK_NO_SOLUTION + 1;
+    return ERROR_IK_NO_SOLUTION_INITAL;
   }
   prevPos[0] = mkVelProfile.kinParam.L; // Calculated by arcMotionIK (initial deltaPosue)
   prevPos[1] = mkVelProfile.kinParam.t1;
@@ -812,7 +817,7 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
                                   circleProfile.EETheta * DEG2RAD, (n + 1) * DEG2RAD * rotDir))
     {
       // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-      return ERROR_IK_NO_SOLUTION + 2;
+      return ERROR_IK_NO_SOLUTION_IN_LOOP;
     }
 
     //////////////////////////////////////////////////
@@ -910,7 +915,7 @@ int MKVelProfile::gen_spiral_profile(SPIRALProfile &spiralProfile)
                                 spiralProfile.EETheta * DEG2RAD, 0))
   {
     // if(bDebug) printf("!!!! NO IK SOLUTION !!!!\n");
-    return ERROR_IK_NO_SOLUTION + 1;
+    return ERROR_IK_NO_SOLUTION_INITAL;
   }
   prevPos[0] = mkVelProfile.kinParam.L; // Calculated by arcMotionIK (initial deltaPosue)
   prevPos[1] = mkVelProfile.kinParam.t1;
@@ -939,21 +944,24 @@ int MKVelProfile::gen_spiral_profile(SPIRALProfile &spiralProfile)
     //  the I.K.
     if (!mkVelProfile.arcMotionIK(incrementRadius * (spiralProfile.arcAng - n), spiralProfile.cenPosX, spiralProfile.cenPosY,
                                   spiralProfile.EETheta * DEG2RAD, (n + 1) * DEG2RAD * rotDir))
+    {
+      return ERROR_IK_NO_SOLUTION_IN_LOOP;
+    }
 
-      if (n < acc_ori_area)
-      {
-        deltaT = deltaT_per_1deg * (1 + (acc_area)*0.08);
-        acc_area = acc_area - 1;
-      }
-      else if (n >= (spiralProfile.arcAng - acc_ori_area))
-      {
-        deltaT = deltaT_per_1deg * (1 + (dec_area)*0.08);
-        dec_area = dec_area + 1;
-      }
-      else
-      {
-        deltaT = deltaT_per_1deg;
-      }
+    if (n < acc_ori_area)
+    {
+      deltaT = deltaT_per_1deg * (1 + (acc_area)*0.08);
+      acc_area = acc_area - 1;
+    }
+    else if (n >= (spiralProfile.arcAng - acc_ori_area))
+    {
+      deltaT = deltaT_per_1deg * (1 + (dec_area)*0.08);
+      dec_area = dec_area + 1;
+    }
+    else
+    {
+      deltaT = deltaT_per_1deg;
+    }
     ////////////////////////////////////////////////
     // Handing 4 motors...
     ////////////////////////////////////////////////
