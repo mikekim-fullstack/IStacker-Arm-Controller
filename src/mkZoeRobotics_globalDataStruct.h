@@ -169,7 +169,7 @@ typedef struct _speedRampData
   volatile uint32_t totalSteps = 0; // total steps
   volatile uint32_t step_count = 0;
   volatile float C = 0;
-
+  volatile int stepdir_sum = 0;
   //! What part of the speed ramp we are in.
   unsigned char run_state;
   //! Direction stepper motor should move.
@@ -218,6 +218,7 @@ typedef struct _KINEMATICS_DATA_
   volatile uint16_t step_count = 0;
   volatile uint16_t step_sum = 0;
   volatile int8_t prevDir = 0;
+  volatile int stepdir_sum = 0;
 
   int dataSize = 0;
   // int32_t finalSumSteps = 0;
@@ -250,6 +251,7 @@ typedef struct _KINEMATICS_DATA_
   {
     indexMotionData = 0;
     activated = false;
+    step_sum = 0;
     // pulseTick=false;
     // pulseDown=false;
     step_count = 0;

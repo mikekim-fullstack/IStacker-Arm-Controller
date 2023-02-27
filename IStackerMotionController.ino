@@ -10,12 +10,12 @@ extern SEL_MODE motionMode;
 
 // ------- PIN MAPPING ----------
 // ********* Motor #0 **************
-#define PIN_X_DIR 47
-#define PIN_X_PULSE 46
-#define PIN_X_HOME_SW 45
-// #define PIN_X_DIR 11
-// #define PIN_X_PULSE 8
+// #define PIN_X_DIR 47
+// #define PIN_X_PULSE 46
 // #define PIN_X_HOME_SW 45
+#define PIN_X_DIR 11
+#define PIN_X_PULSE 8
+#define PIN_X_HOME_SW 45
 
 // ********* Motor #1 **************
 #define PIN_R1_DIR 41
@@ -202,8 +202,11 @@ void TC0_Handler_1sec() // 0: X-Axis
 }
 
 //-------------------------------------
-volatile static uint32_t Count0 = 0;
-volatile static bool Count0_finished = true;
+// volatile static uint32_t Count0 = 0;
+// volatile static bool Count0_finished = true;
+// volatile static int8_t motorDir[4] = {0};
+// volatile static int dirStepSum[4] = {0};
+// char strtemp[128];
 void TC0_Handler_test()
 {
   TC0->TC_CHANNEL[0].TC_SR;
@@ -313,24 +316,44 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   // ** Kinematic Cartesian Motion ** //
   if (kinData[motorNum].activated)
   {
+    // volatile int steps = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps;
     // --------------------Motor Direction -----------------
-    volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData + 1].dir;
+    volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
+
+    // motorDir[motorNum] = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
     // if (dir == 1)
     //   digitalWrite(PIN_DIR, HIGH);
     // else if (dir == -1)
     //   digitalWrite(PIN_DIR, LOW);
     // --------------------Motor Direction -----------------
-    if (kinData[motorNum].prevDir != dir)
+    if (kinData[motorNum].prevDir != dir && kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps != 0)
     {
-      kinData[motorNum].prevDir = dir;
+      // dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
+      // motorDir[motorNum] = dir;
+      // if (motorNum == 0)
+      // {
+      //   sprintf(strtemp, "i=%d, dir=%d\n", kinData[motorNum].indexMotionData, dir);
+      //   serialSendBuf.write(strtemp);
+      // }
+
       if (dir == 1)
+      {
+        kinData[motorNum].prevDir = dir;
         digitalWrite(PIN_DIR, HIGH);
+        // for (long i = 0; i < 100000; i++)
+        //   ;
+      }
       else if (dir == -1)
+      {
+        kinData[motorNum].prevDir = dir;
         digitalWrite(PIN_DIR, LOW);
+        // for (long i = 0; i < 100000; i++)
+        //   ;
+      }
     }
 
     tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
-    if (kinData[motorNum].getMotionSteps() == 0)
+    if (kinData[motorNum].motionData == 0)
     {
       // No pulse only time passes and move on to next motion data.
       kinData[motorNum].nextMotionData();
@@ -348,14 +371,14 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       // Once finished, move to the next motion data slot.
       if (kinData[motorNum].step_count == kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps)
       {
-        kinData[motorNum].nextMotionData();
         kinData[motorNum].step_count = 0;
+        kinData[motorNum].nextMotionData();
       }
     }
     // When all motion data are excuted, exit.
     if (kinData[motorNum].step_sum == kinData[motorNum].totalSteps)
     {
-      sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos);
+      sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d, stepdir_sum=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos, kinData[motorNum].stepdir_sum);
       serialSendBuf.write(str);
       kinData[motorNum].motionDone();
       mkMainOperation.processFinishingMove(motorNum);
@@ -509,17 +532,16 @@ volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
 
   if (kinData[motorNum].activated == true)
   {
+
     volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
     kinData[motorNum].elapsedTime++;
-    if (kinData[motorNum].pulseTick)
+    if (kinData[motorNum].pulseTick && kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps != 0)
     {
       kinData[motorNum].pulseTick = false;
-      ++kinData[motorNum].step_count;
       digitalWrite(PIN_PULSE, LOW);
-      posData[motorNum].abs_step_pos += dir; // kinData[motorNum].getMotionDir();
+      ++kinData[motorNum].step_count;
+      posData[motorNum].abs_step_pos += dir; // kinData[motorNum].motionData[kinData[motorNum].indexMotionData + 1].dir; // kinData[motorNum].getMotionDir();
       ++kinData[motorNum].step_sum;
-
-      // ++kinData[motorNum].indexMotionData;
     }
   }
   else if (speedData[motorNum].activated)
@@ -1764,7 +1786,7 @@ void loop_CircleProfile()
 
   for (int i = 0; i < 4; i++)
   {
-    posData[i].abs_step_pos = 0;
+    // posData[i].abs_step_pos = 0;
     posData[i].OperationMode = STOPPED;
   }
 
@@ -1824,7 +1846,7 @@ void loop_SpiralProfile()
 
   for (int i = 0; i < 4; i++)
   {
-    posData[i].abs_step_pos = 0;
+    // posData[i].abs_step_pos = 0;
     posData[i].OperationMode = STOPPED;
   }
 
@@ -1864,9 +1886,15 @@ void loop_SpiralProfile()
 void loop_LinearProfile()
 {
 
-  double travelDistance = 420;        // max travel distance: 420mm
-  double startX = 1000, startY = -10; // min startY: -10
-  double EEAngle = -45 * DEG2RAD;
+  double travelDistance = 400;        // max travel distance: 400mm
+  double startX = 1000, startY = -50; // min startY: -50
+  double EEAngle = -90 * DEG2RAD;
+  // if (!dir)
+  // {
+  //   startY = -450;
+  //   travelDistance = -400;
+  // }
+  // dir = !dir;
   linearProfile.EEx[0] = startX;                                 //[mm]: Start EEx position
   linearProfile.EEx[1] = startX + travelDistance * cos(EEAngle); //[mm]: End EEx position
 
@@ -1885,7 +1913,7 @@ void loop_LinearProfile()
 
   for (int i = 0; i < 4; i++)
   {
-    posData[i].abs_step_pos = 0;
+    // posData[i].abs_step_pos = 0;
     posData[i].OperationMode = STOPPED;
   }
 
@@ -1943,7 +1971,7 @@ void loop_EERotationProfile()
 
   for (int i = 0; i < 3; i++)
   {
-    posData[i].abs_step_pos = 0;
+    // posData[i].abs_step_pos = 0;
     posData[i].OperationMode = STOPPED;
   }
 

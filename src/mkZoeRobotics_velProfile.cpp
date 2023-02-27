@@ -230,9 +230,36 @@ int MKVelProfile::calibrateDiscretizedData(int nAxis, double totalDistance[],
   double diffStep[4] = {0};
 
   int minCn = 100000;
+
+  if (nAxis == 2)
+  {
+    startPos[3] = endPos[3] = 0;
+  }
   char str[128];
   bool debug = true;
 
+  // test
+  // kinData[0].motionData[286].dir = kinData[0].motionData[286 - 1].dir;
+  // kinData[0].motionData[1].steps = 0;
+  // kinData[0].motionData[398].steps = 0;
+
+  // KIN_DATA kinDataTemp[MAX_MOTOR_NUM];
+  // memcpy(kinDataTemp, kinData, sizeof(KIN_DATA) * MAX_MOTOR_NUM);
+  // for (int ch = 0; ch < nAxis; ch++)
+  // {
+  //   index_step[ch]++;
+
+  //   // --- Sum up all steps with motor's direction. ---
+  //   kinData[ch].motionData[0].dir = kinDataTemp[ch].motionData[0].dir;
+  //   kinData[ch].motionData[0].steps = 0;
+  //   kinData[ch].motionData[0].Cn = kinDataTemp[ch].motionData[0].Cn;
+  //   for (int j = 0; j < index_step[ch]; j++)
+  //   {
+  //     kinData[ch].motionData[j + 1].dir = kinDataTemp[ch].motionData[j].dir;
+  //     kinData[ch].motionData[j + 1].steps = kinDataTemp[ch].motionData[j].Cn;
+  //     kinData[ch].motionData[j + 1].Cn = kinDataTemp[ch].motionData[j].Cn;
+  //   }
+  // }
   //-----------------------------------------------------------------
   // After descretized contineuous data, check if there is any round off errors.
   // If there exists, correct it by adding or removing steps.
@@ -349,33 +376,41 @@ int MKVelProfile::calibrateDiscretizedData(int nAxis, double totalDistance[],
     }
   }
 
-  if (debug)
+  for (int ch = 0; ch < nAxis; ch++)
   {
-    sum[0] = 0, sum[1] = 0, sum[2] = 0, sum[3] = 0;
-    for (int ch = 0; ch < nAxis; ch++)
+    kinData[ch].stepdir_sum = 0;
+    for (int j = 0; j < index_step[ch]; j++)
     {
-      for (int j = 0; j < index_step[ch]; j++)
+      kinData[ch].stepdir_sum += kinData[ch].motionData[j].dir * kinData[ch].motionData[j].steps;
+      if (debug)
       {
-        sum[ch] = sum[ch] + kinData[ch].motionData[j].dir * kinData[ch].motionData[j].steps;
         sprintf(str, "Cn[%d][%d]=,%d, dir=,%d, steps=,%d\n", ch, j,
                 kinData[ch].motionData[j].Cn,
                 kinData[ch].motionData[j].dir,
                 kinData[ch].motionData[j].steps);
-        // printf("%s",str);
+
+        // Serial.print(str);
       }
-      // printf("\n");
     }
+    if (debug)
+    {
+      // Serial.print("\n");
+    }
+  }
+
+  if (debug)
+  {
 
     //--------------------------------
     for (int ch = 0; ch < nAxis; ch++)
     {
       diffEndStartStep[ch] = round((endPos[ch] - startPos[ch]) * DIST2STEP[ch]);
-      diffStep[ch] = sum[ch] - diffEndStartStep[ch];
+      diffStep[ch] = kinData[ch].stepdir_sum - diffEndStartStep[ch];
     }
     sprintf(str, "\nAfter Correction: Difference step: X= [%d], R1=[%d], R2=[%d], Z=[%d]\n", int(diffStep[0]), int(diffStep[1]), int(diffStep[2]), int(diffStep[3]));
     Serial.print(str);
     sprintf(str, "After: sum_dir*steps:[ 0]=%d, [1]=%d,[ 2]=%d, totalStep: %d, %d, %d\n",
-            sum[0], sum[1], sum[2], kinData[0].totalSteps, kinData[1].totalSteps, kinData[2].totalSteps);
+            kinData[0].stepdir_sum, kinData[1].stepdir_sum, kinData[2].stepdir_sum, kinData[0].totalSteps, kinData[1].totalSteps, kinData[2].totalSteps);
     Serial.print(str);
   }
   return 1;
@@ -395,7 +430,7 @@ void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
   speedData[num].NNb = speedProfile.NNb;
   speedData[num].Cn_acc0 = speedProfile.Cn_acc0;
   speedData[num].dir = speedProfile.dir;
-
+  speedData[num].stepdir_sum = speedProfile.dir * speedProfile.steps;
   // if (speedProfile.dir == 1)
   // { // CCW
   //   motorCh[num].dir.pIO->PIO_ODSR = motorCh[num].dir.pin;
@@ -473,6 +508,8 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   speedData[num].Cn = speedData[num].Cn_acc0;
 
   speedData[num].step_count = 0;
+
+  speedData[num].stepdir_sum = speedData[num].dir * speedData[num].totalSteps;
 
   // char str[128];
   // sprintf(str, "\n------------------------------\nstart-speed:%3.3f", speed);
@@ -615,7 +652,6 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
       {
         kinData[CH].totalSteps = int(totalDistance[CH] * DIST2STEP[CH]);
         kinData[CH].dataSize = index_step[CH];
-        printf("CH[%d]:dataSize=%d, totalSteps=%d\n", CH, kinData[CH].dataSize, kinData[CH].totalSteps);
       }
       break;
     }
@@ -739,7 +775,6 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
       {
         kinData[CH].totalSteps = int(totalDistance[CH] * DIST2STEP[CH]);
         kinData[CH].dataSize = index_step[CH];
-        printf("CH[%d]:dataSize=%d, totalSteps=%d\n", CH, kinData[CH].dataSize, kinData[CH].totalSteps);
       }
       break;
     }
