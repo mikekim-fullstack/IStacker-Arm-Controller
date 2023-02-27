@@ -353,7 +353,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       }
     }
     // When all motion data are excuted, exit.
-    if (kinData[motorNum].indexMotionData == kinData[motorNum].dataSize)
+    if (kinData[motorNum].step_sum == kinData[motorNum].totalSteps)
     {
       sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos);
       serialSendBuf.write(str);
@@ -514,7 +514,7 @@ volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
     if (kinData[motorNum].pulseTick)
     {
       kinData[motorNum].pulseTick = false;
-      kinData[motorNum].step_count++;
+      ++kinData[motorNum].step_count;
       digitalWrite(PIN_PULSE, LOW);
       posData[motorNum].abs_step_pos += dir; // kinData[motorNum].getMotionDir();
       ++kinData[motorNum].step_sum;
@@ -1425,6 +1425,9 @@ bool start = false;
 static int16_t sHomeSW = 0;
 static bool testTimer = true;
 CIRCLEProfile circleProfile;
+SPIRALProfile spiralProfile;
+LINEARProfile linearProfile;
+EEROTATIONProfile eeRotationProfile;
 //------------------------------------------------------------------
 void setup()
 {
@@ -1511,6 +1514,49 @@ void setup()
     previousMillis = millis();
   }
   // speedData[0].activated = true;
+}
+void loop()
+{
+  int sel = 0;
+  if (Serial.available() > 0)
+  {
+    sel = Serial.read();
+    Serial.write(sel);
+    Serial.println("");
+
+    switch (sel)
+    {
+    case '1':
+      serialSendBuf.write("loop_multi_motor_speed\n");
+      loop_multi_motor_speed();
+      break;
+    case '2':
+      serialSendBuf.write("loop_CircleProfile\n");
+      loop_CircleProfile();
+      break;
+    case '3':
+      serialSendBuf.write("loop_SpiralProfile\n");
+      loop_SpiralProfile();
+      break;
+    case '4':
+      serialSendBuf.write("loop_LinearProfile\n");
+      loop_LinearProfile();
+      break;
+    case '5':
+      serialSendBuf.write("loop_EERotationProfile\n");
+      loop_EERotationProfile();
+      break;
+    }
+  }
+  ///////////////////////////////////////////////////
+  // 3. Processing sending message packets back to PC
+  if (serialSendBuf.buflen)
+  {
+    if (Serial.availableForWrite() > 60)
+    {
+      Serial.println(serialSendBuf.read());
+    }
+  }
 }
 // loop_original
 void loop_original()
@@ -1609,22 +1655,14 @@ void loop_original()
 // loop_multi_motor_speed
 void loop_multi_motor_speed()
 {
-  // put your main code here, to run repeatedly:
-  if (Serial.available() > 0)
-  {
-    arrivingdatabyte = Serial.read();
-    Serial.write(arrivingdatabyte);
-    if (arrivingdatabyte == 's')
-    {
-      for (int i = 0; i < 4; i++)
-      {
-        posData[i].OperationMode = STOPPED;
-      }
 
-      start = true;
-      previousMillis = 0;
-    }
+  for (int i = 0; i < 4; i++)
+  {
+    posData[i].OperationMode = STOPPED;
   }
+
+  start = true;
+  previousMillis = 0;
 
   if (start)
   {
@@ -1700,73 +1738,38 @@ void loop_multi_motor_speed()
               speedData[0].totalSteps, speedData[1].totalSteps, speedData[2].totalSteps, speedData[3].totalSteps);
       Serial.println(str);
       dir = !dir;
-      // for (int i = 0; i < size; i++)
-      // {
-      //   int n = nn[i];
-      //   speedData[n].activated = true;
-      // }
     }
     previousMillis = currentMillis;
-  }
-
-  // for (int n = 0; n < 4; n++)
-  // {
-  //   if (posData[n].OperationMode == JOB_DONE)
-  //   {
-  //     unsigned long curr = millis();
-  //     sprintf(str, "Done(%d)! totalSteps:%d", n, posData[n].abs_step_pos);
-  //     Serial.println(str);
-  //     posData[n].OperationMode = STOPPED;
-  //     // previousMillis = currentMillis;
-  //   }
-  // }
-
-  ///////////////////////////////////////////////////
-  // 3. Processing sending message packets back to PC
-  if (serialSendBuf.buflen)
-  {
-    if (Serial.availableForWrite() > 60)
-    {
-      Serial.println(serialSendBuf.read());
-    }
   }
 }
 
 //////////////////////////////////
-// loop_CIRCLEProfile
-void loop()
+// loop_CircleProfile
+void loop_CircleProfile()
 {
-  if (Serial.available() > 0)
+
+  circleProfile.speed = 360;    //[deg/sec]: EE Speed
+  circleProfile.cenPosX = 1000; //[mm]: Start EEx position
+  circleProfile.cenPosY = -250; //[mm]: Start EEy Position
+  circleProfile.EETheta = -90;  //[deg]: Start EEthea angle
+  circleProfile.arcAng = 360;   //[deg]: Rotation angle
+  circleProfile.radius = 50;    //[mm]: Circle radius to move
+
+  int rev = mkVelProfile.gen_circle_profile(circleProfile);
+  sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d),", rev,
+          kinData[0].dataSize, kinData[0].totalSteps,
+          kinData[1].dataSize, kinData[1].totalSteps,
+          kinData[2].dataSize, kinData[2].totalSteps);
+  serialSendBuf.write(str);
+
+  for (int i = 0; i < 4; i++)
   {
-    arrivingdatabyte = Serial.read();
-    Serial.write(arrivingdatabyte);
-    if (arrivingdatabyte == 's')
-    {
-      circleProfile.speed = 360;    //[deg/sec]: EE Speed
-      circleProfile.cenPosX = 1000; //[mm]: Start EEx position
-      circleProfile.cenPosY = -250; //[mm]: Start EEy Position
-      circleProfile.EETheta = -90;  //[deg]: Start EEthea angle
-      circleProfile.arcAng = 360;   //[deg]: Rotation angle
-      circleProfile.radius = 50;    //[mm]: Circle radius to move
-
-      int rev = mkVelProfile.gen_circle_profile(circleProfile);
-      sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d),", rev,
-              kinData[0].dataSize, kinData[0].totalSteps,
-              kinData[1].dataSize, kinData[1].totalSteps,
-              kinData[2].dataSize, kinData[2].totalSteps);
-      serialSendBuf.write(str);
-
-      for (int i = 0; i < 4; i++)
-      {
-        posData[i].abs_step_pos = 0;
-        posData[i].OperationMode = STOPPED;
-      }
-
-      start = true;
-      previousMillis = millis();
-    }
+    posData[i].abs_step_pos = 0;
+    posData[i].OperationMode = STOPPED;
   }
 
+  start = true;
+  previousMillis = 0;
   if (start)
   {
 
@@ -1791,30 +1794,185 @@ void loop()
         }
       }
 
-      dir = !dir;
+      // dir = !dir;
       previousMillis = currentMillis;
     }
   }
+}
 
-  // for (int n = 0; n < 4; n++)
-  // {
-  //   if (posData[n].OperationMode == JOB_DONE)
-  //   {
-  //     unsigned long curr = millis();
-  //     sprintf(str, "Done(%d)! totalSteps:%d", n, posData[n].abs_step_pos);
-  //     Serial.println(str);
-  //     posData[n].OperationMode = STOPPED;
-  //     // previousMillis = currentMillis;
-  //   }
-  // }
+//////////////////////////////////
+// loop_SpiralProfile
+void loop_SpiralProfile()
+{
 
-  ///////////////////////////////////////////////////
-  // 3. Processing sending message packets back to PC
-  if (serialSendBuf.buflen)
+  spiralProfile.speed = 360;    //[deg/sec]: EE Speed
+  spiralProfile.cenPosX = 1000; //[mm]: Start EEx position
+  spiralProfile.cenPosY = -250; //[mm]: Start EEy Position
+  spiralProfile.EETheta = -90;  //[deg]: Start EEthea angle
+  spiralProfile.arcAng = 360;   //[deg]: Rotation angle
+  spiralProfile.radius = 50;    //[mm]: Circle radius to move
+  spiralProfile.posZ = 500;     //[mm]: initial EE position in Z axis
+  spiralProfile.heightZ = 100;  //[mm]: How much the EE move in Z axis
+
+  int rev = mkVelProfile.gen_spiral_profile(spiralProfile);
+  sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d), ch3=(%d, %d)\n", rev,
+          kinData[0].dataSize, kinData[0].totalSteps,
+          kinData[1].dataSize, kinData[1].totalSteps,
+          kinData[2].dataSize, kinData[2].totalSteps,
+          kinData[3].dataSize, kinData[3].totalSteps);
+  serialSendBuf.write(str);
+
+  for (int i = 0; i < 4; i++)
   {
-    if (Serial.availableForWrite() > 100)
+    posData[i].abs_step_pos = 0;
+    posData[i].OperationMode = STOPPED;
+  }
+
+  start = true;
+  previousMillis = 0;
+  if (start)
+  {
+
+    currentMillis = millis();
+    if (currentMillis - previousMillis > interval)
     {
-      Serial.println(serialSendBuf.read());
+      start = false;
+      const int size = 4;
+      int nn[size] = {0, 1, 2, 3};
+
+      for (int i = 0; i < size; i++)
+      {
+        int n = nn[i];
+        if (posData[n].OperationMode == STOPPED)
+        {
+          kinData[n].elapsedTime = 0; // millis();
+          sprintf(str, "motorNumber:%d started at %d", n, kinData[n].elapsedTime);
+          Serial.println(str);
+          posData[n].OperationMode = MOVING;
+
+          kinData[n].activated = true;
+        }
+      }
+
+      previousMillis = currentMillis;
+    }
+  }
+}
+
+//////////////////////////////////
+// loop_LinearProfile
+void loop_LinearProfile()
+{
+
+  double travelDistance = 420;        // max travel distance: 420mm
+  double startX = 1000, startY = -10; // min startY: -10
+  double EEAngle = -45 * DEG2RAD;
+  linearProfile.EEx[0] = startX;                                 //[mm]: Start EEx position
+  linearProfile.EEx[1] = startX + travelDistance * cos(EEAngle); //[mm]: End EEx position
+
+  linearProfile.EEy[0] = startY;                                 //[mm]: Start EEx position
+  linearProfile.EEy[1] = startY + travelDistance * sin(EEAngle); //[mm]: End EEx position
+
+  linearProfile.EETheta = EEAngle; //[rad]
+  linearProfile.Vel = 350;         // min: 100 max:350 (keep Cn over 60)
+
+  int rev = mkVelProfile.gen_linear_profile(linearProfile);
+  sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d)\n", rev,
+          kinData[0].dataSize, kinData[0].totalSteps,
+          kinData[1].dataSize, kinData[1].totalSteps,
+          kinData[2].dataSize, kinData[2].totalSteps);
+  serialSendBuf.write(str);
+
+  for (int i = 0; i < 4; i++)
+  {
+    posData[i].abs_step_pos = 0;
+    posData[i].OperationMode = STOPPED;
+  }
+
+  start = true;
+  previousMillis = 0;
+  if (start)
+  {
+
+    currentMillis = millis();
+    if (currentMillis - previousMillis > interval)
+    {
+      start = false;
+      const int size = 3;
+      int nn[size] = {0, 1, 2};
+
+      for (int i = 0; i < size; i++)
+      {
+        int n = nn[i];
+        if (posData[n].OperationMode == STOPPED)
+        {
+          kinData[n].elapsedTime = 0; // millis();
+          sprintf(str, "motorNumber:%d started at %d", n, kinData[n].elapsedTime);
+          Serial.println(str);
+          posData[n].OperationMode = MOVING;
+
+          kinData[n].activated = true;
+        }
+      }
+      previousMillis = currentMillis;
+    }
+  }
+}
+
+//////////////////////////////////
+// loop_EERotationProfile
+void loop_EERotationProfile()
+{
+
+  double startX = 1000, startY = -250; // min startY: -10
+  double startEEAngle = -10, endEEAngle = -135;
+  eeRotationProfile.EEx = startX; //[mm]: Start EEx position
+
+  eeRotationProfile.EEy = startY; //[mm]: Start EEx position
+
+  eeRotationProfile.EETheta[0] = startEEAngle * DEG2RAD;
+  eeRotationProfile.EETheta[1] = endEEAngle * DEG2RAD;
+  eeRotationProfile.Vel = 360 / 5 * DEG2RAD; //[rad/sec]
+
+  int rev = mkVelProfile.gen_EErotation_profile(eeRotationProfile);
+  sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d)\n", rev,
+          kinData[0].dataSize, kinData[0].totalSteps,
+          kinData[1].dataSize, kinData[1].totalSteps,
+          kinData[2].dataSize, kinData[2].totalSteps);
+  serialSendBuf.write(str);
+
+  for (int i = 0; i < 3; i++)
+  {
+    posData[i].abs_step_pos = 0;
+    posData[i].OperationMode = STOPPED;
+  }
+
+  start = true;
+  previousMillis = 0;
+  if (start)
+  {
+
+    currentMillis = millis();
+    if (currentMillis - previousMillis > interval)
+    {
+      start = false;
+      const int size = 3;
+      int nn[size] = {0, 1, 2};
+
+      for (int i = 0; i < size; i++)
+      {
+        int n = nn[i];
+        if (posData[n].OperationMode == STOPPED)
+        {
+          kinData[n].elapsedTime = 0; // millis();
+          sprintf(str, "motorNumber:%d started at %d", n, kinData[n].elapsedTime);
+          Serial.println(str);
+          posData[n].OperationMode = MOVING;
+
+          kinData[n].activated = true;
+        }
+      }
+      previousMillis = currentMillis;
     }
   }
 }
@@ -1823,19 +1981,10 @@ void loop()
 // loop_single_motor_test
 void loop_single_motor_test()
 {
-  // put your main code here, to run repeatedly:
-  if (Serial.available() > 0)
-  {
-    arrivingdatabyte = Serial.read();
-    Serial.write(arrivingdatabyte);
-    if (arrivingdatabyte == 's')
-    {
-      posData[motorNumber].OperationMode = STOPPED;
 
-      start = !start;
-    }
-  }
+  posData[motorNumber].OperationMode = STOPPED;
 
+  start = !start;
   if (posData[motorNumber].OperationMode == JOB_DONE)
   {
     unsigned long curr = millis();

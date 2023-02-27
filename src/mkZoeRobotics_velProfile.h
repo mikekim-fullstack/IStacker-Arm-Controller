@@ -55,15 +55,26 @@ public:
   ~MKVelProfile()
   {
   }
-  static int gen_linear_profile_old(LINEARProfile &linearProfile);
+  // static int gen_linear_profile_old(LINEARProfile &linearProfile);
   static int gen_linear_profile(LINEARProfile &linearProfile);
   static int gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile);
   static int gen_circle_profile(CIRCLEProfile &circleProfile);
   static int gen_spiral_profile(SPIRALProfile &spiralProfile);
   static void set_speed_profile(SPEEDProfile &speedProfile);
   static void gen_speed_profile(uint16_t num, double distance, double speed, double accel, double decel);
+
   static void update_speed_only(uint16_t num, uint32_t steps);
-  // void resetPos();
+  static int discretizeDataForStepperMotor(MKVelProfile &mkVelProfile, int nAxis, int n,
+                                           double deltaT, double deltaPos[], double prevPos[],
+                                           double sum_deltaPos[], double totalDistance[],
+                                           double deltaPos_residue[], double deltaPosPrev[],
+                                           double abs_step[], double steps[],
+                                           double abs_sum_steps[], double maxCn,
+                                           double rest[], double sumDist[],
+                                           int index_step[], double sumdL[], double curZPos = 0);
+  static int calibrateDiscretizedData(int nAxis, double totalDistance[],
+                                      int index_step[], double abs_sum_steps[],
+                                      double startPos[], double endPos[]);
 
   bool invKin(double x, double y, double theta);
   bool invKin(KIN_PARAM &input);
