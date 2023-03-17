@@ -1,361 +1,286 @@
-Cn[0]=,999, dir=,-1, steps=,0
-Cn[1]=,999, dir=,-1, steps=,0
-Cn[2]=,999, dir=,-1, steps=,0
-Cn[3]=,4338, dir=,-1, steps=,1
-Cn[4]=,4743, dir=,-1, steps=,1
-Cn[5]=,4537, dir=,-1, steps=,1
-Cn[6]=,3828, dir=,-1, steps=,2
-Cn[7]=,999, dir=,-1, steps=,0
-Cn[8]=,2240, dir=,-1, steps=,3
-Cn[9]=,4166, dir=,-1, steps=,1
-Cn[10]=,2368, dir=,-1, steps=,2
-Cn[11]=,2165, dir=,-1, steps=,2
-Cn[12]=,1853, dir=,-1, steps=,3
-Cn[13]=,2174, dir=,-1, steps=,2
-Cn[14]=,1616, dir=,-1, steps=,3
-Cn[15]=,1625, dir=,-1, steps=,3
-Cn[16]=,1534, dir=,-1, steps=,3
-Cn[17]=,1364, dir=,-1, steps=,3
-Cn[18]=,1159, dir=,-1, steps=,4
-Cn[19]=,1242, dir=,-1, steps=,3
-Cn[20]=,962, dir=,-1, steps=,4
-Cn[21]=,926, dir=,-1, steps=,4
-Cn[22]=,852, dir=,-1, steps=,4
-Cn[23]=,754, dir=,-1, steps=,5
-Cn[24]=,797, dir=,-1, steps=,4
-Cn[25]=,651, dir=,-1, steps=,5
-Cn[26]=,631, dir=,-1, steps=,5
-Cn[27]=,589, dir=,-1, steps=,5
-Cn[28]=,530, dir=,-1, steps=,5
-Cn[29]=,462, dir=,-1, steps=,6
-Cn[30]=,464, dir=,-1, steps=,6
-Cn[31]=,451, dir=,-1, steps=,5
-Cn[32]=,356, dir=,-1, steps=,6
-Cn[33]=,322, dir=,-1, steps=,7
-Cn[34]=,332, dir=,-1, steps=,6
-Cn[35]=,281, dir=,-1, steps=,6
-Cn[36]=,252, dir=,-1, steps=,7
-Cn[37]=,255, dir=,-1, steps=,7
-Cn[38]=,252, dir=,-1, steps=,7
-Cn[39]=,243, dir=,-1, steps=,8
-Cn[40]=,262, dir=,-1, steps=,7
-Cn[41]=,241, dir=,-1, steps=,8
-Cn[42]=,247, dir=,-1, steps=,7
-Cn[43]=,218, dir=,-1, steps=,8
-Cn[44]=,215, dir=,-1, steps=,8
-Cn[45]=,207, dir=,-1, steps=,9
-Cn[46]=,220, dir=,-1, steps=,8
-Cn[47]=,204, dir=,-1, steps=,9
-Cn[48]=,208, dir=,-1, steps=,9
-Cn[49]=,209, dir=,-1, steps=,9
-Cn[50]=,205, dir=,-1, steps=,9
-Cn[51]=,198, dir=,-1, steps=,9
-Cn[52]=,188, dir=,-1, steps=,10
-Cn[53]=,195, dir=,-1, steps=,9
-Cn[54]=,180, dir=,-1, steps=,10
-Cn[55]=,180, dir=,-1, steps=,10
-Cn[56]=,178, dir=,-1, steps=,10
-Cn[57]=,174, dir=,-1, steps=,11
-Cn[58]=,184, dir=,-1, steps=,10
-Cn[59]=,173, dir=,-1, steps=,11
-Cn[60]=,178, dir=,-1, steps=,10
-Cn[61]=,164, dir=,-1, steps=,11
-Cn[62]=,164, dir=,-1, steps=,11
-Cn[63]=,161, dir=,-1, steps=,11
-Cn[64]=,157, dir=,-1, steps=,12
-Cn[65]=,165, dir=,-1, steps=,11
-Cn[66]=,156, dir=,-1, steps=,12
-Cn[67]=,160, dir=,-1, steps=,11
-Cn[68]=,149, dir=,-1, steps=,12
-Cn[69]=,149, dir=,-1, steps=,12
-Cn[70]=,148, dir=,-1, steps=,12
-Cn[71]=,145, dir=,-1, steps=,13
-Cn[72]=,153, dir=,-1, steps=,12
-Cn[73]=,147, dir=,-1, steps=,12
-Cn[74]=,140, dir=,-1, steps=,13
-Cn[75]=,143, dir=,-1, steps=,13
-Cn[76]=,145, dir=,-1, steps=,13
-Cn[77]=,146, dir=,-1, steps=,12
-Cn[78]=,135, dir=,-1, steps=,14
-Cn[79]=,144, dir=,-1, steps=,13
-Cn[80]=,142, dir=,-1, steps=,13
-Cn[81]=,138, dir=,-1, steps=,13
-Cn[82]=,134, dir=,-1, steps=,14
-Cn[83]=,139, dir=,-1, steps=,13
-Cn[84]=,133, dir=,-1, steps=,14
-Cn[85]=,137, dir=,-1, steps=,13
-Cn[86]=,129, dir=,-1, steps=,14
-Cn[87]=,131, dir=,-1, steps=,14
-Cn[88]=,133, dir=,-1, steps=,14
-Cn[89]=,133, dir=,-1, steps=,14
-Cn[90]=,133, dir=,-1, steps=,14
-Cn[91]=,133, dir=,-1, steps=,14
-Cn[92]=,132, dir=,-1, steps=,14
-Cn[93]=,131, dir=,-1, steps=,14
-Cn[94]=,129, dir=,-1, steps=,14
-Cn[95]=,127, dir=,-1, steps=,14
-Cn[96]=,125, dir=,-1, steps=,15
-Cn[97]=,131, dir=,-1, steps=,14
-Cn[98]=,129, dir=,-1, steps=,14
-Cn[99]=,126, dir=,-1, steps=,14
-Cn[100]=,123, dir=,-1, steps=,15
-Cn[101]=,129, dir=,-1, steps=,14
-Cn[102]=,126, dir=,-1, steps=,14
-Cn[103]=,123, dir=,-1, steps=,15
-Cn[104]=,129, dir=,-1, steps=,14
-Cn[105]=,126, dir=,-1, steps=,14
-Cn[106]=,124, dir=,-1, steps=,15
-Cn[107]=,130, dir=,-1, steps=,14
-Cn[108]=,128, dir=,-1, steps=,14
-Cn[109]=,126, dir=,-1, steps=,14
-Cn[110]=,125, dir=,-1, steps=,15
-Cn[111]=,132, dir=,-1, steps=,14
-Cn[112]=,132, dir=,-1, steps=,14
-Cn[113]=,132, dir=,-1, steps=,14
-Cn[114]=,132, dir=,-1, steps=,14
-Cn[115]=,133, dir=,-1, steps=,14
-Cn[116]=,135, dir=,-1, steps=,14
-Cn[117]=,137, dir=,-1, steps=,13
-Cn[118]=,131, dir=,-1, steps=,14
-Cn[119]=,135, dir=,-1, steps=,14
-Cn[120]=,140, dir=,-1, steps=,13
-Cn[121]=,136, dir=,-1, steps=,13
-Cn[122]=,134, dir=,-1, steps=,14
-Cn[123]=,142, dir=,-1, steps=,13
-Cn[124]=,142, dir=,-1, steps=,13
-Cn[125]=,142, dir=,-1, steps=,13
-Cn[126]=,145, dir=,-1, steps=,13
-Cn[127]=,149, dir=,-1, steps=,12
-Cn[128]=,142, dir=,-1, steps=,13
-Cn[129]=,149, dir=,-1, steps=,12
-Cn[130]=,146, dir=,-1, steps=,12
-Cn[131]=,145, dir=,-1, steps=,13
-Cn[132]=,159, dir=,-1, steps=,11
-Cn[133]=,149, dir=,-1, steps=,12
-Cn[134]=,154, dir=,-1, steps=,12
-Cn[135]=,162, dir=,-1, steps=,11
-Cn[136]=,158, dir=,-1, steps=,12
-Cn[137]=,172, dir=,-1, steps=,11
-Cn[138]=,174, dir=,-1, steps=,10
-Cn[139]=,163, dir=,-1, steps=,11
-Cn[140]=,171, dir=,-1, steps=,11
-Cn[141]=,183, dir=,-1, steps=,10
-Cn[142]=,181, dir=,-1, steps=,10
-Cn[143]=,184, dir=,-1, steps=,10
-Cn[144]=,190, dir=,-1, steps=,10
-Cn[145]=,202, dir=,-1, steps=,9
-Cn[146]=,197, dir=,-1, steps=,9
-Cn[147]=,198, dir=,-1, steps=,9
-Cn[148]=,203, dir=,-1, steps=,9
-Cn[149]=,215, dir=,-1, steps=,8
-Cn[150]=,208, dir=,-1, steps=,9
-Cn[151]=,234, dir=,-1, steps=,8
-Cn[152]=,241, dir=,-1, steps=,8
-Cn[153]=,256, dir=,-1, steps=,7
-Cn[154]=,247, dir=,-1, steps=,7
-Cn[155]=,246, dir=,-1, steps=,7
-Cn[156]=,254, dir=,-1, steps=,7
-Cn[157]=,273, dir=,-1, steps=,7
-Cn[158]=,309, dir=,-1, steps=,6
-Cn[159]=,311, dir=,-1, steps=,6
-Cn[160]=,329, dir=,-1, steps=,6
-Cn[161]=,368, dir=,-1, steps=,5
-Cn[162]=,359, dir=,-1, steps=,5
-Cn[163]=,369, dir=,-1, steps=,5
-Cn[164]=,405, dir=,-1, steps=,5
-Cn[165]=,481, dir=,-1, steps=,4
-Cn[166]=,482, dir=,-1, steps=,4
-Cn[167]=,522, dir=,-1, steps=,3
-Cn[168]=,466, dir=,-1, steps=,4
-Cn[169]=,600, dir=,-1, steps=,3
-Cn[170]=,634, dir=,-1, steps=,3
-Cn[171]=,756, dir=,-1, steps=,2
-Cn[172]=,687, dir=,-1, steps=,3
-Cn[173]=,1139, dir=,-1, steps=,2
-Cn[174]=,1459, dir=,-1, steps=,1
-Cn[175]=,1140, dir=,-1, steps=,2
-Cn[176]=,999, dir=,-1, steps=,0
-Cn[177]=,1303, dir=,-1, steps=,1
-Cn[178]=,999, dir=,-1, steps=,0
-Cn[179]=,1823, dir=,-1, steps=,1
-Cn[180]=,999, dir=,1, steps=,0
-Cn[181]=,999, dir=,1, steps=,0
-Cn[182]=,1349, dir=,1, steps=,1
-Cn[183]=,1301, dir=,1, steps=,1
-Cn[184]=,1041, dir=,1, steps=,2
-Cn[185]=,1303, dir=,1, steps=,1
-Cn[186]=,777, dir=,1, steps=,2
-Cn[187]=,704, dir=,1, steps=,3
-Cn[188]=,857, dir=,1, steps=,2
-Cn[189]=,616, dir=,1, steps=,3
-Cn[190]=,591, dir=,1, steps=,3
-Cn[191]=,520, dir=,1, steps=,4
-Cn[192]=,567, dir=,1, steps=,3
-Cn[193]=,433, dir=,1, steps=,4
-Cn[194]=,405, dir=,1, steps=,4
-Cn[195]=,360, dir=,1, steps=,5
-Cn[196]=,371, dir=,1, steps=,5
-Cn[197]=,361, dir=,1, steps=,5
-Cn[198]=,334, dir=,1, steps=,5
-Cn[199]=,297, dir=,1, steps=,6
-Cn[200]=,299, dir=,1, steps=,6
-Cn[201]=,288, dir=,1, steps=,6
-Cn[202]=,267, dir=,1, steps=,7
-Cn[203]=,277, dir=,1, steps=,7
-Cn[204]=,276, dir=,1, steps=,7
-Cn[205]=,265, dir=,1, steps=,7
-Cn[206]=,246, dir=,1, steps=,7
-Cn[207]=,222, dir=,1, steps=,8
-Cn[208]=,221, dir=,1, steps=,8
-Cn[209]=,214, dir=,1, steps=,9
-Cn[210]=,227, dir=,1, steps=,8
-Cn[211]=,208, dir=,1, steps=,9
-Cn[212]=,208, dir=,1, steps=,9
-Cn[213]=,203, dir=,1, steps=,9
-Cn[214]=,194, dir=,1, steps=,9
-Cn[215]=,181, dir=,1, steps=,10
-Cn[216]=,183, dir=,1, steps=,10
-Cn[217]=,182, dir=,1, steps=,10
-Cn[218]=,177, dir=,1, steps=,10
-Cn[219]=,169, dir=,1, steps=,11
-Cn[220]=,174, dir=,1, steps=,11
-Cn[221]=,175, dir=,1, steps=,10
-Cn[222]=,159, dir=,1, steps=,11
-Cn[223]=,156, dir=,1, steps=,12
-Cn[224]=,164, dir=,1, steps=,11
-Cn[225]=,155, dir=,1, steps=,12
-Cn[226]=,158, dir=,1, steps=,12
-Cn[227]=,159, dir=,1, steps=,11
-Cn[228]=,145, dir=,1, steps=,13
-Cn[229]=,155, dir=,1, steps=,12
-Cn[230]=,150, dir=,1, steps=,12
-Cn[231]=,143, dir=,1, steps=,13
-Cn[232]=,147, dir=,1, steps=,12
-Cn[233]=,138, dir=,1, steps=,13
-Cn[234]=,139, dir=,1, steps=,13
-Cn[235]=,138, dir=,1, steps=,13
-Cn[236]=,137, dir=,1, steps=,13
-Cn[237]=,134, dir=,1, steps=,14
-Cn[238]=,140, dir=,1, steps=,13
-Cn[239]=,135, dir=,1, steps=,13
-Cn[240]=,130, dir=,1, steps=,14
-Cn[241]=,133, dir=,1, steps=,14
-Cn[242]=,135, dir=,1, steps=,13
-Cn[243]=,128, dir=,1, steps=,14
-Cn[244]=,129, dir=,1, steps=,14
-Cn[245]=,129, dir=,1, steps=,14
-Cn[246]=,129, dir=,1, steps=,14
-Cn[247]=,128, dir=,1, steps=,14
-Cn[248]=,127, dir=,1, steps=,14
-Cn[249]=,125, dir=,1, steps=,15
-Cn[250]=,133, dir=,1, steps=,14
-Cn[251]=,130, dir=,1, steps=,14
-Cn[252]=,128, dir=,1, steps=,14
-Cn[253]=,125, dir=,1, steps=,15
-Cn[254]=,132, dir=,1, steps=,14
-Cn[255]=,129, dir=,1, steps=,14
-Cn[256]=,126, dir=,1, steps=,15
-Cn[257]=,132, dir=,1, steps=,14
-Cn[258]=,128, dir=,1, steps=,14
-Cn[259]=,126, dir=,1, steps=,15
-Cn[260]=,132, dir=,1, steps=,14
-Cn[261]=,129, dir=,1, steps=,14
-Cn[262]=,127, dir=,1, steps=,14
-Cn[263]=,124, dir=,1, steps=,15
-Cn[264]=,131, dir=,1, steps=,14
-Cn[265]=,130, dir=,1, steps=,14
-Cn[266]=,129, dir=,1, steps=,14
-Cn[267]=,128, dir=,1, steps=,14
-Cn[268]=,127, dir=,1, steps=,14
-Cn[269]=,127, dir=,1, steps=,14
-Cn[270]=,128, dir=,1, steps=,14
-Cn[271]=,129, dir=,1, steps=,14
-Cn[272]=,131, dir=,1, steps=,14
-Cn[273]=,133, dir=,1, steps=,14
-Cn[274]=,137, dir=,1, steps=,13
-Cn[275]=,131, dir=,1, steps=,14
-Cn[276]=,136, dir=,1, steps=,13
-Cn[277]=,132, dir=,1, steps=,14
-Cn[278]=,139, dir=,1, steps=,13
-Cn[279]=,137, dir=,1, steps=,13
-Cn[280]=,135, dir=,1, steps=,13
-Cn[281]=,135, dir=,1, steps=,14
-Cn[282]=,147, dir=,1, steps=,12
-Cn[283]=,137, dir=,1, steps=,13
-Cn[284]=,141, dir=,1, steps=,13
-Cn[285]=,145, dir=,1, steps=,13
-Cn[286]=,151, dir=,1, steps=,12
-Cn[287]=,147, dir=,1, steps=,12
-Cn[288]=,144, dir=,1, steps=,13
-Cn[289]=,155, dir=,1, steps=,12
-Cn[290]=,155, dir=,1, steps=,12
-Cn[291]=,157, dir=,1, steps=,12
-Cn[292]=,161, dir=,1, steps=,11
-Cn[293]=,153, dir=,1, steps=,12
-Cn[294]=,160, dir=,1, steps=,11
-Cn[295]=,156, dir=,1, steps=,12
-Cn[296]=,168, dir=,1, steps=,11
-Cn[297]=,168, dir=,1, steps=,11
-Cn[298]=,169, dir=,1, steps=,11
-Cn[299]=,174, dir=,1, steps=,10
-Cn[300]=,165, dir=,1, steps=,11
-Cn[301]=,174, dir=,1, steps=,10
-Cn[302]=,169, dir=,1, steps=,11
-Cn[303]=,184, dir=,1, steps=,10
-Cn[304]=,185, dir=,1, steps=,10
-Cn[305]=,189, dir=,1, steps=,10
-Cn[306]=,196, dir=,1, steps=,9
-Cn[307]=,186, dir=,1, steps=,10
-Cn[308]=,200, dir=,1, steps=,9
-Cn[309]=,197, dir=,1, steps=,9
-Cn[310]=,197, dir=,1, steps=,9
-Cn[311]=,201, dir=,1, steps=,9
-Cn[312]=,209, dir=,1, steps=,9
-Cn[313]=,222, dir=,1, steps=,8
-Cn[314]=,214, dir=,1, steps=,9
-Cn[315]=,238, dir=,1, steps=,8
-Cn[316]=,239, dir=,1, steps=,8
-Cn[317]=,246, dir=,1, steps=,7
-Cn[318]=,227, dir=,1, steps=,8
-Cn[319]=,243, dir=,1, steps=,7
-Cn[320]=,235, dir=,1, steps=,8
-Cn[321]=,266, dir=,1, steps=,7
-Cn[322]=,269, dir=,1, steps=,7
-Cn[323]=,280, dir=,1, steps=,7
-Cn[324]=,301, dir=,1, steps=,6
-Cn[325]=,283, dir=,1, steps=,6
-Cn[326]=,296, dir=,1, steps=,7
-Cn[327]=,374, dir=,1, steps=,6
-Cn[328]=,411, dir=,1, steps=,5
-Cn[329]=,391, dir=,1, steps=,6
-Cn[330]=,453, dir=,1, steps=,6
-Cn[331]=,548, dir=,1, steps=,5
-Cn[332]=,565, dir=,1, steps=,5
-Cn[333]=,603, dir=,1, steps=,5
-Cn[334]=,667, dir=,1, steps=,5
-Cn[335]=,770, dir=,1, steps=,4
-Cn[336]=,739, dir=,1, steps=,5
-Cn[337]=,934, dir=,1, steps=,4
-Cn[338]=,970, dir=,1, steps=,4
-Cn[339]=,1058, dir=,1, steps=,4
-Cn[340]=,1219, dir=,1, steps=,3
-Cn[341]=,1111, dir=,1, steps=,4
-Cn[342]=,1432, dir=,1, steps=,3
-Cn[343]=,1442, dir=,1, steps=,3
-Cn[344]=,1543, dir=,1, steps=,3
-Cn[345]=,1765, dir=,1, steps=,3
-Cn[346]=,2214, dir=,1, steps=,2
-Cn[347]=,1980, dir=,1, steps=,3
-Cn[348]=,3063, dir=,1, steps=,2
-Cn[349]=,3221, dir=,1, steps=,2
-Cn[350]=,3830, dir=,1, steps=,1
-Cn[351]=,2784, dir=,1, steps=,2
-Cn[352]=,4060, dir=,1, steps=,1
-Cn[353]=,3614, dir=,1, steps=,2
-Cn[354]=,999, dir=,1, steps=,0
-Cn[355]=,4121, dir=,1, steps=,2
-Cn[356]=,999, dir=,1, steps=,0
-Cn[357]=,999, dir=,1, steps=,0
-Cn[358]=,999, dir=,1, steps=,0
-Cn[359]=,6781, dir=,1, steps=,1
-Cn[360]=,6781, dir=,0, steps=,0
+Cn[0][0]=	1259	 dir=	-1	 steps=	0		0			
+Cn[0][1]=	1107	 dir=	-1	 steps=	2		-2			
+Cn[0][2]=	792	 dir=	-1	 steps=	3		-3			
+Cn[0][3]=	595	 dir=	-1	 steps=	4		-4			
+Cn[0][4]=	466	 dir=	-1	 steps=	5		-5			
+Cn[0][5]=	377	 dir=	-1	 steps=	6		-6			
+Cn[0][6]=	314	 dir=	-1	 steps=	8		-8			
+Cn[0][7]=	297	 dir=	-1	 steps=	8		-8			
+Cn[0][8]=	255	 dir=	-1	 steps=	10		-10			
+Cn[0][9]=	245	 dir=	-1	 steps=	10		-10			
+Cn[0][10]=	216	 dir=	-1	 steps=	12		-12			
+Cn[0][11]=	210	 dir=	-1	 steps=	12		-12			
+Cn[0][12]=	193	 dir=	-1	 steps=	13		-13			
+Cn[0][13]=	179	 dir=	-1	 steps=	14		-14			
+Cn[0][14]=	170	 dir=	-1	 steps=	15		-15			
+Cn[0][15]=	163	 dir=	-1	 steps=	16		-16			
+Cn[0][16]=	161	 dir=	-1	 steps=	16		-16			
+Cn[0][17]=	151	 dir=	-1	 steps=	17		-17			
+Cn[0][18]=	147	 dir=	-1	 steps=	17		-17			
+Cn[0][19]=	136	 dir=	-1	 steps=	19		-19			
+Cn[0][20]=	139	 dir=	-1	 steps=	18		-18			
+Cn[0][21]=	129	 dir=	-1	 steps=	20		-20			
+Cn[0][22]=	131	 dir=	-1	 steps=	20		-20			
+Cn[0][23]=	128	 dir=	-1	 steps=	20		-20			
+Cn[0][24]=	124	 dir=	-1	 steps=	21		-21			
+Cn[0][25]=	123	 dir=	-1	 steps=	21		-21			
+Cn[0][26]=	120	 dir=	-1	 steps=	21		-21			
+Cn[0][27]=	116	 dir=	-1	 steps=	22		-22			
+Cn[0][28]=	115	 dir=	-1	 steps=	22		-22			
+Cn[0][29]=	112	 dir=	-1	 steps=	23		-23			
+Cn[0][30]=	114	 dir=	-1	 steps=	23		-23			
+Cn[0][31]=	114	 dir=	-1	 steps=	23		-23			
+Cn[0][32]=	113	 dir=	-1	 steps=	23		-23			
+Cn[0][33]=	111	 dir=	-1	 steps=	23		-23			
+Cn[0][34]=	108	 dir=	-1	 steps=	24		-24		531	"index:34, val:24"
+Cn[0][35]=	110	 dir=	-1	 steps=	23		-23			
+Cn[0][36]=	106	 dir=	-1	 steps=	24		-24			cont index36 val-25
+Cn[0][37]=	106	 dir=	-1	 steps=	24		-24	-602	602	
+Cn[0][38]=	106	 dir=	-1	 steps=	24		-24	-626	626	"index:36, val:26"
+Cn[0][39]=	105	 dir=	-1	 steps=	24		-24	-650	650	
+Cn[0][40]=	104	 dir=	-1	 steps=	25		-25			
+Cn[0][41]=	108	 dir=	-1	 steps=	24		-24			
+Cn[0][42]=	106	 dir=	-1	 steps=	24		-24			
+Cn[0][43]=	105	 dir=	-1	 steps=	25		-25	-748	748	
+Cn[0][44]=	108	 dir=	-1	 steps=	24		-24			
+Cn[0][45]=	106	 dir=	-1	 steps=	24		-24			
+Cn[0][46]=	106	 dir=	-1	 steps=	24		-24			
+Cn[0][47]=	104	 dir=	-1	 steps=	25		-25			
+Cn[0][48]=	108	 dir=	-1	 steps=	24		-24			
+Cn[0][49]=	106	 dir=	-1	 steps=	24		-24			
+Cn[0][50]=	107	 dir=	-1	 steps=	24		-24			
+Cn[0][51]=	107	 dir=	-1	 steps=	24		-24			
+Cn[0][52]=	106	 dir=	-1	 steps=	24		-24			
+Cn[0][53]=	108	 dir=	-1	 steps=	24		-24			
+Cn[0][54]=	108	 dir=	-1	 steps=	24		-24			
+Cn[0][55]=	111	 dir=	-1	 steps=	23		-23			
+Cn[0][56]=	108	 dir=	-1	 steps=	24		-24			
+Cn[0][57]=	111	 dir=	-1	 steps=	23		-23	-1083	1060	
+Cn[0][58]=	109	 dir=	-1	 steps=	23		-23		1083	
+Cn[0][59]=	109	 dir=	-1	 steps=	24		-24			
+Cn[0][60]=	114	 dir=	-1	 steps=	23		-23			
+Cn[0][61]=	116	 dir=	-1	 steps=	22		-22			
+Cn[0][62]=	111	 dir=	-1	 steps=	23		-23			
+Cn[0][63]=	115	 dir=	-1	 steps=	22		-22			
+Cn[0][64]=	113	 dir=	-1	 steps=	23		-23			
+Cn[0][65]=	117	 dir=	-1	 steps=	22		-22			
+Cn[0][66]=	118	 dir=	-1	 steps=	22		-22			
+Cn[0][67]=	118	 dir=	-1	 steps=	22		-22			
+Cn[0][68]=	122	 dir=	-1	 steps=	21		-21			
+Cn[0][69]=	119	 dir=	-1	 steps=	22		-22			
+Cn[0][70]=	124	 dir=	-1	 steps=	21		-21			
+Cn[0][71]=	125	 dir=	-1	 steps=	21		-21			
+Cn[0][72]=	125	 dir=	-1	 steps=	20		-20			
+Cn[0][73]=	123	 dir=	-1	 steps=	21		-21			
+Cn[0][74]=	127	 dir=	-1	 steps=	20		-20			
+Cn[0][75]=	127	 dir=	-1	 steps=	20		-20			
+Cn[0][76]=	128	 dir=	-1	 steps=	20		-20			
+Cn[0][77]=	130	 dir=	-1	 steps=	20		-20			
+Cn[0][78]=	134	 dir=	-1	 steps=	19		-19			
+Cn[0][79]=	133	 dir=	-1	 steps=	19		-19			
+Cn[0][80]=	135	 dir=	-1	 steps=	19		-19			
+Cn[0][81]=	136	 dir=	-1	 steps=	19		-19			
+Cn[0][82]=	141	 dir=	-1	 steps=	18		-18			
+Cn[0][83]=	141	 dir=	-1	 steps=	18		-18			
+Cn[0][84]=	141	 dir=	-1	 steps=	18		-18			
+Cn[0][85]=	144	 dir=	-1	 steps=	18		-18			
+Cn[0][86]=	149	 dir=	-1	 steps=	17		-17			
+Cn[0][87]=	148	 dir=	-1	 steps=	17		-17			
+Cn[0][88]=	150	 dir=	-1	 steps=	17		-17			
+Cn[0][89]=	154	 dir=	-1	 steps=	17		-17			
+Cn[0][90]=	160	 dir=	-1	 steps=	16		-16			
+Cn[0][91]=	161	 dir=	-1	 steps=	16		-16			
+Cn[0][92]=	163	 dir=	-1	 steps=	16		-16			
+Cn[0][93]=	169	 dir=	-1	 steps=	15		-15			
+Cn[0][94]=	167	 dir=	-1	 steps=	15		-15			
+Cn[0][95]=	168	 dir=	-1	 steps=	15		-15			
+Cn[0][96]=	173	 dir=	-1	 steps=	15		-15			
+Cn[0][97]=	180	 dir=	-1	 steps=	14		-14			
+Cn[0][98]=	181	 dir=	-1	 steps=	14		-14			
+Cn[0][99]=	184	 dir=	-1	 steps=	14		-14			
+Cn[0][100]=	191	 dir=	-1	 steps=	13		-13			
+Cn[0][101]=	190	 dir=	-1	 steps=	13		-13			
+Cn[0][102]=	191	 dir=	-1	 steps=	13		-13			
+Cn[0][103]=	198	 dir=	-1	 steps=	13		-13			
+Cn[0][104]=	210	 dir=	-1	 steps=	12		-12			
+Cn[0][105]=	211	 dir=	-1	 steps=	12		-12			
+Cn[0][106]=	218	 dir=	-1	 steps=	12		-12			
+Cn[0][107]=	229	 dir=	-1	 steps=	11		-11			
+Cn[0][108]=	229	 dir=	-1	 steps=	11		-11			
+Cn[0][109]=	235	 dir=	-1	 steps=	11		-11			
+Cn[0][110]=	247	 dir=	-1	 steps=	10		-10			
+Cn[0][111]=	246	 dir=	-1	 steps=	10		-10			
+Cn[0][112]=	249	 dir=	-1	 steps=	10		-10			
+Cn[0][113]=	263	 dir=	-1	 steps=	9		-9			
+Cn[0][114]=	258	 dir=	-1	 steps=	10		-10			
+Cn[0][115]=	291	 dir=	-1	 steps=	9		-9			
+Cn[0][116]=	307	 dir=	-1	 steps=	8		-8			
+Cn[0][117]=	298	 dir=	-1	 steps=	8		-8			
+Cn[0][118]=	302	 dir=	-1	 steps=	8		-8			
+Cn[0][119]=	317	 dir=	-1	 steps=	8		-8			
+Cn[0][120]=	347	 dir=	-1	 steps=	7		-7			
+Cn[0][121]=	349	 dir=	-1	 steps=	7		-7			
+Cn[0][122]=	368	 dir=	-1	 steps=	7		-7			
+Cn[0][123]=	406	 dir=	-1	 steps=	6		-6			
+Cn[0][124]=	408	 dir=	-1	 steps=	6		-6			
+Cn[0][125]=	429	 dir=	-1	 steps=	6		-6			
+Cn[0][126]=	482	 dir=	-1	 steps=	5		-5			
+Cn[0][127]=	480	 dir=	-1	 steps=	5		-5			
+Cn[0][128]=	508	 dir=	-1	 steps=	5		-5			
+Cn[0][129]=	579	 dir=	-1	 steps=	4		-4			
+Cn[0][130]=	573	 dir=	-1	 steps=	4		-4			
+Cn[0][131]=	610	 dir=	-1	 steps=	4		-4			
+Cn[0][132]=	712	 dir=	-1	 steps=	3		-3			
+Cn[0][133]=	698	 dir=	-1	 steps=	3		-3			
+Cn[0][134]=	751	 dir=	-1	 steps=	3		-3			
+Cn[0][135]=	902	 dir=	-1	 steps=	2		-2			
+Cn[0][136]=	877	 dir=	-1	 steps=	2		-2			
+Cn[0][137]=	955	 dir=	-1	 steps=	2		-2			
+Cn[0][138]=	1203	 dir=	-1	 steps=	2		-2			
+Cn[0][139]=	2048	 dir=	-1	 steps=	1		-1			
+Cn[0][140]=	2488	 dir=	-1	 steps=	1		-1			
+Cn[0][141]=	1259	 dir=	-1	 steps=	0		0			
+Cn[0][142]=	1259	 dir=	-1	 steps=	0		0	-2177		
+Cn[0][143]=	1259	 dir=	1	 steps=	0		0			
+Cn[0][144]=	1918	 dir=	1	 steps=	1		1			
+Cn[0][145]=	2125	 dir=	1	 steps=	1		1			
+Cn[0][146]=	1835	 dir=	1	 steps=	1		1			
+Cn[0][147]=	1344	 dir=	1	 steps=	1		1			
+Cn[0][148]=	936	 dir=	1	 steps=	1		1			
+Cn[0][149]=	880	 dir=	1	 steps=	2		2			
+Cn[0][150]=	752	 dir=	1	 steps=	3		3			
+Cn[0][151]=	791	 dir=	1	 steps=	3		3			
+Cn[0][152]=	754	 dir=	1	 steps=	3		3			
+Cn[0][153]=	662	 dir=	1	 steps=	3		3			
+Cn[0][154]=	549	 dir=	1	 steps=	4		4			
+Cn[0][155]=	534	 dir=	1	 steps=	4		4			
+Cn[0][156]=	488	 dir=	1	 steps=	5		5			
+Cn[0][157]=	508	 dir=	1	 steps=	5		5			
+Cn[0][158]=	498	 dir=	1	 steps=	5		5			
+Cn[0][159]=	459	 dir=	1	 steps=	5		5			
+Cn[0][160]=	406	 dir=	1	 steps=	6		6			
+Cn[0][161]=	401	 dir=	1	 steps=	6		6			
+Cn[0][162]=	377	 dir=	1	 steps=	6		6			
+Cn[0][163]=	342	 dir=	1	 steps=	7		7			
+Cn[0][164]=	340	 dir=	1	 steps=	7		7			
+Cn[0][165]=	325	 dir=	1	 steps=	8		8			
+Cn[0][166]=	338	 dir=	1	 steps=	7		7			
+Cn[0][167]=	300	 dir=	1	 steps=	8		8			
+Cn[0][168]=	289	 dir=	1	 steps=	9		9			
+Cn[0][169]=	301	 dir=	1	 steps=	8		8			
+Cn[0][170]=	272	 dir=	1	 steps=	9		9			
+Cn[0][171]=	264	 dir=	1	 steps=	9		9			
+Cn[0][172]=	250	 dir=	1	 steps=	10		10			
+Cn[0][173]=	253	 dir=	1	 steps=	10		10			
+Cn[0][174]=	249	 dir=	1	 steps=	10		10			
+Cn[0][175]=	236	 dir=	1	 steps=	11		11			
+Cn[0][176]=	241	 dir=	1	 steps=	10		10			
+Cn[0][177]=	219	 dir=	1	 steps=	12		12			
+Cn[0][178]=	229	 dir=	1	 steps=	11		11			
+Cn[0][179]=	216	 dir=	1	 steps=	12		12			
+Cn[0][180]=	215	 dir=	1	 steps=	12		12			
+Cn[0][181]=	209	 dir=	1	 steps=	12		12			
+Cn[0][182]=	200	 dir=	1	 steps=	13		13			
+Cn[0][183]=	200	 dir=	1	 steps=	13		13			
+Cn[0][184]=	197	 dir=	1	 steps=	13		13			
+Cn[0][185]=	189	 dir=	1	 steps=	13		13			
+Cn[0][186]=	179	 dir=	1	 steps=	14		14			
+Cn[0][187]=	178	 dir=	1	 steps=	14		14			
+Cn[0][188]=	173	 dir=	1	 steps=	15		15			
+Cn[0][189]=	176	 dir=	1	 steps=	14		14			
+Cn[0][190]=	166	 dir=	1	 steps=	15		15			
+Cn[0][191]=	164	 dir=	1	 steps=	16		16			
+Cn[0][192]=	168	 dir=	1	 steps=	15		15			
+Cn[0][193]=	160	 dir=	1	 steps=	16		16			
+Cn[0][194]=	159	 dir=	1	 steps=	16		16			
+Cn[0][195]=	155	 dir=	1	 steps=	16		16			
+Cn[0][196]=	150	 dir=	1	 steps=	17		17			
+Cn[0][197]=	151	 dir=	1	 steps=	17		17			
+Cn[0][198]=	149	 dir=	1	 steps=	17		17			
+Cn[0][199]=	146	 dir=	1	 steps=	18		18	-1658		
+Cn[0][200]=	148	 dir=	1	 steps=	17		17	17		
+Cn[0][201]=	141	 dir=	1	 steps=	18		18	18		
+Cn[0][202]=	139	 dir=	1	 steps=	18		18	18		
+Cn[0][203]=	136	 dir=	1	 steps=	19		19	19		
+Cn[0][204]=	138	 dir=	1	 steps=	19		19	19		
+Cn[0][205]=	138	 dir=	1	 steps=	18		18	18		
+Cn[0][206]=	130	 dir=	1	 steps=	20		20	20		
+Cn[0][207]=	134	 dir=	1	 steps=	19		19	19		
+Cn[0][208]=	129	 dir=	1	 steps=	20		20	20		
+Cn[0][209]=	130	 dir=	1	 steps=	20		20	20		
+Cn[0][210]=	129	 dir=	1	 steps=	20		20	20		
+Cn[0][211]=	126	 dir=	1	 steps=	20		20	20		
+Cn[0][212]=	124	 dir=	1	 steps=	21		21	21		
+Cn[0][213]=	124	 dir=	1	 steps=	21		21	21		
+Cn[0][214]=	125	 dir=	1	 steps=	21		21	21		
+Cn[0][215]=	123	 dir=	1	 steps=	21		21	21		
+Cn[0][216]=	120	 dir=	1	 steps=	21		21	21		
+Cn[0][217]=	118	 dir=	1	 steps=	22		22	22		
+Cn[0][218]=	118	 dir=	1	 steps=	22		22	22		
+Cn[0][219]=	119	 dir=	1	 steps=	22		22	22		
+Cn[0][220]=	117	 dir=	1	 steps=	22		22	22		
+Cn[0][221]=	116	 dir=	1	 steps=	22		22	22		
+Cn[0][222]=	113	 dir=	1	 steps=	23		23	23		
+Cn[0][223]=	114	 dir=	1	 steps=	22		22	22		
+Cn[0][224]=	111	 dir=	1	 steps=	23		23	23		
+Cn[0][225]=	110	 dir=	1	 steps=	23		23	23		
+Cn[0][226]=	110	 dir=	1	 steps=	23		23	23		
+Cn[0][227]=	108	 dir=	1	 steps=	24		24	24		
+Cn[0][228]=	111	 dir=	1	 steps=	23		23	23		
+Cn[0][229]=	109	 dir=	1	 steps=	24		24	24		
+Cn[0][230]=	110	 dir=	1	 steps=	23		23	23		
+Cn[0][231]=	107	 dir=	1	 steps=	24		24	24		
+Cn[0][232]=	107	 dir=	1	 steps=	24		24	24		
+Cn[0][233]=	107	 dir=	1	 steps=	24		24	24		
+Cn[0][234]=	108	 dir=	1	 steps=	24		24	24		
+Cn[0][235]=	106	 dir=	1	 steps=	24		24	24		
+Cn[0][236]=	106	 dir=	1	 steps=	24		24	24		
+Cn[0][237]=	105	 dir=	1	 steps=	24		24	24		
+Cn[0][238]=	104	 dir=	1	 steps=	25		25	25		
+Cn[0][239]=	107	 dir=	1	 steps=	24		24	24		
+Cn[0][240]=	106	 dir=	1	 steps=	24		24	24		
+Cn[0][241]=	104	 dir=	1	 steps=	25		25	25		
+Cn[0][242]=	107	 dir=	1	 steps=	24		24	24		
+Cn[0][243]=	106	 dir=	1	 steps=	24		24	24		
+Cn[0][244]=	105	 dir=	1	 steps=	24		24	24		
+Cn[0][245]=	105	 dir=	1	 steps=	25		25	25		
+Cn[0][246]=	108	 dir=	1	 steps=	24		24	24		
+Cn[0][247]=	108	 dir=	1	 steps=	24		24	24		
+Cn[0][248]=	108	 dir=	1	 steps=	24		24	24		
+Cn[0][249]=	109	 dir=	1	 steps=	24		24	24		
+Cn[0][250]=	110	 dir=	1	 steps=	23		23	23		
+Cn[0][251]=	108	 dir=	1	 steps=	24		24	24		
+Cn[0][252]=	111	 dir=	1	 steps=	23		23	23		
+Cn[0][253]=	111	 dir=	1	 steps=	23		23	23		
+Cn[0][254]=	111	 dir=	1	 steps=	23		23	23		
+Cn[0][255]=	112	 dir=	1	 steps=	23		23	23		
+Cn[0][256]=	115	 dir=	1	 steps=	22		22	22		
+Cn[0][257]=	116	 dir=	1	 steps=	22		22	22		
+Cn[0][258]=	116	 dir=	1	 steps=	22		22	22		
+Cn[0][259]=	119	 dir=	1	 steps=	21		21	21		
+Cn[0][260]=	119	 dir=	1	 steps=	22		22	22		
+Cn[0][261]=	127	 dir=	1	 steps=	20		20	20		
+Cn[0][262]=	126	 dir=	1	 steps=	20		20	20		
+Cn[0][263]=	128	 dir=	1	 steps=	20		20	20		
+Cn[0][264]=	134	 dir=	1	 steps=	19		19	19		
+Cn[0][265]=	135	 dir=	1	 steps=	19		19	19		
+Cn[0][266]=	143	 dir=	1	 steps=	18		18	18		
+Cn[0][267]=	147	 dir=	1	 steps=	17		17	17		
+Cn[0][268]=	149	 dir=	1	 steps=	17		17	17		
+Cn[0][269]=	158	 dir=	1	 steps=	16		16	16		
+Cn[0][270]=	163	 dir=	1	 steps=	16		16	16		
+Cn[0][271]=	179	 dir=	1	 steps=	14		14	14		
+Cn[0][272]=	182	 dir=	1	 steps=	14		14	14		
+Cn[0][273]=	196	 dir=	1	 steps=	13		13	13		
+Cn[0][274]=	211	 dir=	1	 steps=	12		12	12		
+Cn[0][275]=	226	 dir=	1	 steps=	11		11	11		
+Cn[0][276]=	245	 dir=	1	 steps=	10		10	10		
+Cn[0][277]=	264	 dir=	1	 steps=	9		9	9		
+Cn[0][278]=	288	 dir=	1	 steps=	9		9	9		
+Cn[0][279]=	365	 dir=	1	 steps=	7		7	7		
+Cn[0][280]=	423	 dir=	1	 steps=	6		6	6		
+Cn[0][281]=	514	 dir=	1	 steps=	5		5	5		
+Cn[0][282]=	676	 dir=	1	 steps=	3		3	3		
+Cn[0][283]=	752	 dir=	1	 steps=	3		3	3		
+Cn[0][284]=	1358	 dir=	1	 steps=	1		1	1		
+Cn[0][285]=	2211	 dir=	1	 steps=	1		1	1		

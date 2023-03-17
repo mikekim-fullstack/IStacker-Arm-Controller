@@ -384,10 +384,10 @@ int MKVelProfile::calibrateDiscretizedData(int nAxis, double totalDistance[],
       kinData[ch].stepdir_sum += kinData[ch].motionData[j].dir * kinData[ch].motionData[j].steps;
       if (debug)
       {
-        sprintf(str, "Cn[%d][%d]=,%d, dir=,%d, steps=,%d\n", ch, j,
-                kinData[ch].motionData[j].Cn,
-                kinData[ch].motionData[j].dir,
-                kinData[ch].motionData[j].steps);
+        // sprintf(str, "Cn[%d][%d]=,%d, dir=,%d, steps=,%d\n", ch, j,
+        //         kinData[ch].motionData[j].Cn,
+        //         kinData[ch].motionData[j].dir,
+        //         kinData[ch].motionData[j].steps);
 
         // Serial.print(str);
       }
@@ -422,28 +422,32 @@ void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
   motionMode = MODE_JOINT;
   speedData[num].activated = false;
   speedData[num].elapsedTime = 0;
-  // activatedEE = -1;
+  speedData[num].prevDir = 0;
 
   speedData[num].totalSteps = speedProfile.steps;
   speedData[num].Na = speedProfile.Na;
   speedData[num].Nac = speedProfile.Nac;
   speedData[num].NNb = speedProfile.NNb;
   speedData[num].Cn_acc0 = speedProfile.Cn_acc0;
+  speedData[num].Cn_dec0 = speedProfile.Cn_dec0;
   speedData[num].dir = speedProfile.dir;
+  speedData[num].rest = speedProfile.rest;
   speedData[num].stepdir_sum = speedProfile.dir * speedProfile.steps;
-  // if (speedProfile.dir == 1)
-  // { // CCW
-  //   motorCh[num].dir.pIO->PIO_ODSR = motorCh[num].dir.pin;
-  //   motorCh[num].dir.pIO->PIO_CODR = motorCh[num].dir.pin;
-  // }
-  // else
-  // { // CW
-  //   motorCh[num].dir.pIO->PIO_ODSR ^= motorCh[num].dir.pin;
-  //   motorCh[num].dir.pIO->PIO_SODR = motorCh[num].dir.pin;
-  // }
 
   speedData[num].Cn = speedData[num].Cn_acc0;
   speedData[num].step_count = 0;
+  // char str[128];
+  // sprintf(str, "\n------------------------------\nstart-[motor:%d]", num);
+  // sprintf(str, "steps: %d,, Na:%d, Nac=%d,NNb=%d, Cn_acc0=%d, Cn_decc0=%d, dir=%d, rest=%1.6f\n",
+  //         speedData[num].totalSteps,
+  //         speedData[num].Na,
+  //         speedData[num].Nac,
+  //         speedData[num].NNb,
+  //         speedData[num].Cn_acc0,
+  //         speedData[num].Cn_dec0,
+  //         speedData[num].dir,
+  //         speedData[num].rest);
+  // Serial.println(str);
 }
 /**
  * num: number of joint [0:X, 1:R1, 2:R2, 3:Z]
@@ -489,7 +493,7 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   if (speedData[num].Na < Nacc)
   {
     //%Nb = floor(speed^2/(2*alpha*decel));
-    speedData[num].Nb = accel / decel * speedData[num].Na;
+    speedData[num].Nb = floor(accel / decel * speedData[num].Na);
     speedData[num].Nc = steps - (speedData[num].Na + speedData[num].Nb);
   }
   else
@@ -511,8 +515,8 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
 
   speedData[num].stepdir_sum = speedData[num].dir * speedData[num].totalSteps;
 
-  // char str[128];
-  // sprintf(str, "\n------------------------------\nstart-speed:%3.3f", speed);
+  char str[128];
+  sprintf(str, "\n------------------------------\nstart-speed[motor:%d] :%3.3f", num, speed);
   // Serial.println(str);
   // sprintf(str, "start-time:%3.3f", speedData[num].Ttotal);
   // Serial.println(str);
@@ -523,8 +527,16 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   // sprintf(str, "start-Nacc:%d", Nacc);
   // Serial.println(str);
 
-  // sprintf(str, "stat-Nac:%d, Na=%d, Nb=%d, Nc=%d", speedData[num].Nac, speedData[num].Na, speedData[num].Nb, speedData[num].Nc);
-  // Serial.println(str);
+  sprintf(str, "stat- steps: %d,, Na:%d, Nac=%d,NNb=%d, Cn_acc0=%d, Cn_decc0=%d, dir=%d, rest=%1.6f\n",
+          speedData[num].totalSteps,
+          speedData[num].Na,
+          speedData[num].Nac,
+          speedData[num].NNb,
+          speedData[num].Cn_acc0,
+          speedData[num].Cn_dec0,
+          speedData[num].dir,
+          speedData[num].rest);
+  Serial.println(str);
 }
 
 void MKVelProfile::update_speed_only(uint16_t num, uint32_t steps)
@@ -539,42 +551,51 @@ void MKVelProfile::update_speed_only(uint16_t num, uint32_t steps)
 int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
 {
   motionMode = MODE_CARTESIAN;
+
   ///////////////////////////////////
   kinData[0].reset();
   kinData[1].reset();
   kinData[2].reset();
-  double aCoEE[2][4], curEEPos[2];
+  kinData[3].reset();
+  double aCoEE[4][4], curEEPos[4];
   // bool isSameTrajectory=true;
 
-  double initialEEPos[2] = {linearProfile.EEx[0], linearProfile.EEy[0]};
-  double finalEEPos[2] = {linearProfile.EEx[1], linearProfile.EEy[1]};
-  double rest[3] = {0};
+  double initialEEPos[3] = {linearProfile.EEx[0], linearProfile.EEy[0], linearProfile.EEz[0]};
+  double finalEEPos[3] = {linearProfile.EEx[1], linearProfile.EEy[1], linearProfile.EEz[1]};
+  double rest[4] = {0};
   double maxCn = -25.926 * (linearProfile.Vel - 90) + 8000;
-  int nAxis = 3;
-  double diffDist[2];
+  int nAxis = 4;
+  double diffDist[3];
   diffDist[0] = finalEEPos[0] - initialEEPos[0];
   diffDist[1] = finalEEPos[1] - initialEEPos[1];
-  double distEE = sqrt(diffDist[0] * diffDist[0] + diffDist[1] * diffDist[1]);
+  diffDist[2] = finalEEPos[2] - initialEEPos[2];
+  double distEE = sqrt(diffDist[0] * diffDist[0] + diffDist[1] * diffDist[1] + diffDist[2] * diffDist[2]);
 
   ////////////////////////////////////////////////////////
   // ++ deltaT_Lx is duration when EE move 1mm ++
-  double deltaPos[3] = {0}, deltaPosPrev[3] = {0};
-  double sumdL[3] = {0}, sumDist[3] = {0};
-  double deltaPos_residue[3] = {0};
-  double prevPos[3] = {0}, steps[3] = {0};
-  double abs_sum_steps[3] = {0};
-  double totalDistance[3] = {0};
-  int index_step[3] = {0};
-  double abs_step[3] = {0};
-  double sum_deltaPos[3] = {0};
+  double deltaPos[4] = {0}, deltaPosPrev[4] = {0};
+  double sumdL[4] = {0}, sumDist[4] = {0};
+  double deltaPos_residue[4] = {0};
+  double prevPos[4] = {0}, steps[4] = {0};
+  double abs_sum_steps[4] = {0};
+  double totalDistance[4] = {0};
+  int index_step[4] = {0};
+  double abs_step[4] = {0};
+  double sum_deltaPos[4] = {0};
   int n = 0;
+  int startAxis = 0;
 
   if (linearProfile.Vel < 60)
   {
     return ERROR_SET_SPEED_TOO_SLOW; // Too small velocity...
   }
   if (distEE < 1.0)
+  {
+    //      startAxis=3;
+    //      distEE = fabs(linearProfile.heightZ);
     return ERROR_MOVE_TOO_SMALL; // too small movement...
+  }
+
   if (distEE <= 150)
     linearProfile.Vel *= 0.65;
   double Tf = distEE / linearProfile.Vel;
@@ -584,12 +605,19 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
     deltaT = distEE / 5000.0;
   }
 
+  if (fabs(diffDist[2]) < 0.01)
+    nAxis = 3;
+
+  // if (distEE < 1.0 && fabs(diffDist[2]) < 0.01)
+  // {
+  //   return ERROR_MOVE_TOO_SMALL; // too small movement...
+  // }
   // double deltaT= distEE/50000.0;// maintain 750 data set
   if (Tf <= 1.0)
   {
     Tf = 1.0;
   }
-  for (int i = 0; i < 2; i++)
+  for (int i = startAxis; i < nAxis - 1; i++)
   {
     aCoEE[i][0] = initialEEPos[i];
     aCoEE[i][1] = 0.0;
@@ -611,6 +639,7 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
   prevPos[0] = mkVelProfile.kinParam.L; // Calculated by arcMotionIK (initial deltaPosue)
   prevPos[1] = mkVelProfile.kinParam.t1;
   prevPos[2] = mkVelProfile.kinParam.t2;
+  prevPos[3] = linearProfile.EEz[0];
   //////////////////////////////////////////////////////////////////////
   // -- Start to calcute the number of pulses, delay time counts (Cn) and direction of motors
 
@@ -618,7 +647,7 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
   {
     currT += deltaT;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = startAxis; i < nAxis; i++)
     {
       curEEPos[i] =
           aCoEE[i][3] * pow(currT, 3) +
@@ -641,17 +670,18 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
                                             sum_deltaPos, totalDistance,
                                             deltaPos_residue, deltaPosPrev,
                                             abs_step, steps, abs_sum_steps,
-                                            maxCn, rest, sumDist, index_step, sumdL);
+                                            maxCn, rest, sumDist, index_step, sumdL, curEEPos[2]); // Z-axis: curEEPos[2]
     if (rev != 1)
       return rev;
     ////////////////////////////////////////////////
 
     if (currT >= Tf)
     {
-      for (int CH = 0; CH < nAxis; CH++)
+      for (int CH = startAxis; CH < nAxis; CH++)
       {
         kinData[CH].totalSteps = int(totalDistance[CH] * DIST2STEP[CH]);
         kinData[CH].dataSize = index_step[CH];
+        //          printf("CH[%d]:dataSize=%d, totalSteps=%d\n", CH, kinData[CH].dataSize, kinData[CH].totalSteps);
       }
       break;
     }
@@ -660,18 +690,20 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
 
   ////////////////////////////////////////////////
   // Get a stared joint position by IK
-  double startPos[3], endPos[3];
+  double startPos[4], endPos[4];
   mkVelProfile.invKin(linearProfile.EEx[0], linearProfile.EEy[0], linearProfile.EETheta);
 
   startPos[0] = mkVelProfile.kinParam.L;
   startPos[1] = mkVelProfile.kinParam.t1;
   startPos[2] = mkVelProfile.kinParam.t2;
+  startPos[3] = linearProfile.EEz[0];
 
   // Get a end joint position by IK
   mkVelProfile.invKin(linearProfile.EEx[1], linearProfile.EEy[1], linearProfile.EETheta);
   endPos[0] = mkVelProfile.kinParam.L;
   endPos[1] = mkVelProfile.kinParam.t1;
   endPos[2] = mkVelProfile.kinParam.t2;
+  endPos[3] = linearProfile.EEz[1];
 
   int rev = calibrateDiscretizedData(nAxis, totalDistance, index_step, abs_sum_steps, startPos, endPos);
   return rev;

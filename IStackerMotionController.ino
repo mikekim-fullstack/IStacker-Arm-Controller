@@ -14,7 +14,7 @@ extern SEL_MODE motionMode;
 // #define PIN_X_PULSE 46
 // #define PIN_X_HOME_SW 45
 #define PIN_X_DIR 11
-#define PIN_X_PULSE 8
+#define PIN_X_PULSE 9
 #define PIN_X_HOME_SW 45
 
 // ********* Motor #1 **************
@@ -326,31 +326,41 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
     // else if (dir == -1)
     //   digitalWrite(PIN_DIR, LOW);
     // --------------------Motor Direction -----------------
-    if (kinData[motorNum].prevDir != dir && kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps != 0)
-    {
-      // dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
-      // motorDir[motorNum] = dir;
-      // if (motorNum == 0)
-      // {
-      //   sprintf(strtemp, "i=%d, dir=%d\n", kinData[motorNum].indexMotionData, dir);
-      //   serialSendBuf.write(strtemp);
-      // }
+    // if (kinData[motorNum].prevDir != dir && kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps != 0)
+    // if (kinData[motorNum].prevDir != dir)
+    // {
+    //   // dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
+    //   // motorDir[motorNum] = dir;
+    //   // if (motorNum == 0)
+    //   // {
+    //   //   sprintf(strtemp, "i=%d, dir=%d\n", kinData[motorNum].indexMotionData, dir);
+    //   //   serialSendBuf.write(strtemp);
+    //   // }
 
-      if (dir == 1)
-      {
-        kinData[motorNum].prevDir = dir;
-        digitalWrite(PIN_DIR, HIGH);
-        // for (long i = 0; i < 100000; i++)
-        //   ;
-      }
-      else if (dir == -1)
-      {
-        kinData[motorNum].prevDir = dir;
-        digitalWrite(PIN_DIR, LOW);
-        // for (long i = 0; i < 100000; i++)
-        //   ;
-      }
+    //   if (dir == 1)
+    //   {
+    //     kinData[motorNum].prevDir = dir;
+    //     digitalWrite(PIN_DIR, HIGH);
+    //   }
+    //   else if (dir == -1)
+    //   {
+    //     kinData[motorNum].prevDir = dir;
+    //     digitalWrite(PIN_DIR, LOW);
+    //   }
+    // }
+    // if (kinData[motorNum].motionData[kinData[motorNum].indexMotionData].steps != 0)
+    // {
+    if (dir == 1)
+    {
+      // kinData[motorNum].prevDir = dir;
+      digitalWrite(PIN_DIR, HIGH);
     }
+    else if (dir == -1)
+    {
+      // kinData[motorNum].prevDir = dir;
+      digitalWrite(PIN_DIR, LOW);
+    }
+    // }
 
     tc->TC_CHANNEL[tcChannel].TC_RC = kinData[motorNum].getMotionCn();
     if (kinData[motorNum].motionData == 0)
@@ -407,7 +417,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   }
   /////////////////////////////////////////////////////////////
   // ** Joint Motion ** //
-  else if (speedData[motorNum].activated)
+  if (speedData[motorNum].activated)
   {
     volatile uint32_t step_count = speedData[motorNum].step_count;
     // --------------------Motor Direction -----------------
@@ -1537,7 +1547,8 @@ void setup()
   }
   // speedData[0].activated = true;
 }
-void loop()
+// loop_motor_test
+void loop_motor_test()
 {
   int sel = 0;
   if (Serial.available() > 0)
@@ -1581,7 +1592,7 @@ void loop()
   }
 }
 // loop_original
-void loop_original()
+void loop()
 {
   ///////////////////////////////////////
   // 1. Processing Message Packet from PC...
@@ -1712,7 +1723,8 @@ void loop_multi_motor_speed()
           double decel = 0;
           if (n == 0)
           {
-            distance = 1650;                             //[mm]
+            // distance = 1650;                             //[mm]
+            distance = 1052.801;                         //[mm]
             maxSpeed = 400.0;                            //[mm/sec]
             maxAccel = 450.0;                            //[mm/sec^2]
             speed = maxSpeed * (PI * 2.0 / X_LEADPITCH); //[rad/sec]
@@ -1721,7 +1733,8 @@ void loop_multi_motor_speed()
           }
           else if (n == 1)
           {
-            distance = 360 * DEG2RAD;
+            distance = 360 * DEG2RAD;                   // 228.252
+            distance = 170.149 * DEG2RAD;               // 228.252
             maxSpeed = 200;                             //[deg/sec]
             maxAccel = 400;                             //[deg/sec^2]
             speed = maxSpeed * R1_GEAR_RATIO * DEG2RAD; //[rad/sec]
@@ -1730,7 +1743,8 @@ void loop_multi_motor_speed()
           }
           else if (n == 2)
           {
-            distance = 360 * DEG2RAD;
+            // distance = 360 * DEG2RAD;                   // 290.654
+            distance = 11.522 * DEG2RAD;                // 290.654
             maxSpeed = 200;                             //[deg/sec]
             maxAccel = 400;                             //[deg/sec^2]
             speed = maxSpeed * R2_GEAR_RATIO * DEG2RAD; //[rad/sec]
@@ -1739,7 +1753,8 @@ void loop_multi_motor_speed()
           }
           else if (n == 3)
           {
-            distance = 1000 + 650;                       //[mm]
+            // distance = 1000 + 650;                       //[mm]
+            distance = 150;                              //[mm]
             maxSpeed = 400.0;                            //[mm/sec]
             maxAccel = 450.0;                            //[mm/sec^2]
             speed = maxSpeed * (PI * 2.0 / Z_LEADPITCH); //[rad/sec]
@@ -1770,12 +1785,12 @@ void loop_multi_motor_speed()
 void loop_CircleProfile()
 {
 
-  circleProfile.speed = 360;    //[deg/sec]: EE Speed
-  circleProfile.cenPosX = 1000; //[mm]: Start EEx position
-  circleProfile.cenPosY = -250; //[mm]: Start EEy Position
-  circleProfile.EETheta = -90;  //[deg]: Start EEthea angle
-  circleProfile.arcAng = 360;   //[deg]: Rotation angle
-  circleProfile.radius = 50;    //[mm]: Circle radius to move
+  circleProfile.speed = 360 / 2.5; //[deg/sec]: EE Speed
+  circleProfile.cenPosX = 1000;    //[mm]: Start EEx position
+  circleProfile.cenPosY = -250;    //[mm]: Start EEy Position
+  circleProfile.EETheta = -90;     //[deg]: Start EEthea angle
+  circleProfile.arcAng = 360;      //[deg]: Rotation angle
+  circleProfile.radius = 50 / 1.5; //[mm]: Circle radius to move
 
   int rev = mkVelProfile.gen_circle_profile(circleProfile);
   sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d),", rev,
@@ -1886,15 +1901,18 @@ void loop_SpiralProfile()
 void loop_LinearProfile()
 {
 
-  double travelDistance = 400;        // max travel distance: 400mm
+  double travelDistance = 400;        // min:2mm, max travel distance: 400mm
   double startX = 1000, startY = -50; // min startY: -50
-  double EEAngle = -90 * DEG2RAD;
+  double EEAngle = -90 * DEG2RAD;     // EE Angle
+
   // if (!dir)
   // {
   //   startY = -450;
   //   travelDistance = -400;
   // }
   // dir = !dir;
+  linearProfile.Vel = 350; // min: 70mm/s(keep it under max data size:1500 ) max:350 (keep Cn over 60)
+
   linearProfile.EEx[0] = startX;                                 //[mm]: Start EEx position
   linearProfile.EEx[1] = startX + travelDistance * cos(EEAngle); //[mm]: End EEx position
 
@@ -1902,7 +1920,6 @@ void loop_LinearProfile()
   linearProfile.EEy[1] = startY + travelDistance * sin(EEAngle); //[mm]: End EEx position
 
   linearProfile.EETheta = EEAngle; //[rad]
-  linearProfile.Vel = 350;         // min: 100 max:350 (keep Cn over 60)
 
   int rev = mkVelProfile.gen_linear_profile(linearProfile);
   sprintf(str, "return=%d,ch0=(%d, %d), ch1=(%d, %d), ch2=(%d, %d)\n", rev,

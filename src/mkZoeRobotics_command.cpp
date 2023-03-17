@@ -182,10 +182,10 @@ void MKCommand::process_commands()
       mkMainOperation.reportACK(codeValue, motorID, posData[motorID].OperationMode);
 
       return;
-    case SC_GEN_EEMOTION:
+    case SC_GEN_EELINEAR:
     {
       int rev = get_gen_linear_motion_profile();
-      mkMainOperation.reportGenKinDataStatus(RC_STATUS_LINEAR, SC_GEN_EEMOTION, rev);
+      mkMainOperation.reportGenKinDataStatus(RC_STATUS_LINEAR, SC_GEN_EELINEAR, rev);
       return;
     }
     case SC_GEN_EEROTATION:
@@ -405,8 +405,22 @@ int MKCommand::get_gen_linear_motion_profile()
   }
   else
     seen = false;
-
   if (code_seen('V'))
+  {
+    linearProfile.EEz[0] = code_value();
+    seen = true;
+  }
+  else
+    seen = false;
+  if (code_seen('A'))
+  {
+    linearProfile.EEz[1] = code_value();
+    seen = true;
+  }
+  else
+    seen = false;
+
+  if (code_seen('B'))
   {
     linearProfile.EETheta = code_value();
     seen = true;
@@ -414,7 +428,7 @@ int MKCommand::get_gen_linear_motion_profile()
   else
     seen = false;
 
-  if (code_seen('A'))
+  if (code_seen('C'))
   {
     linearProfile.Vel = code_value();
     // linearProfile.Vel = 100;
@@ -689,7 +703,18 @@ bool MKCommand::get_speed_profile()
   }
   else
     seen = false;
-
+  if (code_seen('U'))
+  {
+    speedProfile.Cn_dec0 = (uint32_t)code_value();
+  }
+  else
+    seen = false;
+  if (code_seen('V'))
+  {
+    speedProfile.rest = (float)code_value();
+  }
+  else
+    seen = false;
   if (code_seen('O'))
   {
     speedProfile.dir = (int8_t)code_value();

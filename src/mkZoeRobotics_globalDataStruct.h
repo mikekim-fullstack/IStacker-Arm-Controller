@@ -56,7 +56,7 @@ enum SEND_CMD
 {
   SC_MOVE = 0,
   SC_SET_SPEED,
-  SC_GEN_EEMOTION,
+  SC_GEN_EELINEAR,
   SC_GEN_EEROTATION,
   SC_GEN_CIRCLE,
   SC_GEN_SPIRAL,
@@ -324,6 +324,7 @@ typedef struct
 {
   double EEx[2]; //[START, END]
   double EEy[2]; //[START, END]
+  double EEz[2]; //[START, END]
   double EETheta;
   double Vel;
 } LINEARProfile; // 28bytes
@@ -362,8 +363,10 @@ typedef struct
   uint32_t Nac;     // pulse counts for acceleration and constant areas
   uint32_t NNb;     // pulse counts for deceleration area
   uint32_t Cn_acc0; // fisrt period time for 1st pulse of acceleration on Timer.
+  uint32_t Cn_dec0; // fisrt period time for 1st pulse of deceleration on Timer.
   int8_t dir;       // step motor direction 1:CCW, -1:CC
-} SPEEDProfile;     // 28bytes
+  float rest;       // save  decimal points on first step.
+} SPEEDProfile;     //
 
 typedef struct
 {
