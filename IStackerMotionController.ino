@@ -388,8 +388,8 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
     // When all motion data are excuted, exit.
     if (kinData[motorNum].step_sum == kinData[motorNum].totalSteps)
     {
-      sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d, stepdir_sum=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos, kinData[motorNum].stepdir_sum);
-      serialSendBuf.write(str);
+      // sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d, stepdir_sum=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos, kinData[motorNum].stepdir_sum);
+      // serialSendBuf.write(str);
       kinData[motorNum].motionDone();
       mkMainOperation.processFinishingMove(motorNum);
     }
@@ -406,8 +406,8 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
 
       if (kinData[motorNum].indexMotionData == kinData[motorNum].dataSize - 1)
       {
-        sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos);
-        serialSendBuf.write(str);
+        // sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos);
+        // serialSendBuf.write(str);
         kinData[motorNum].motionDone();
         mkMainOperation.processFinishingMove(motorNum);
         return;
@@ -421,14 +421,18 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   {
     volatile uint32_t step_count = speedData[motorNum].step_count;
     // --------------------Motor Direction -----------------
-    if (speedData[motorNum].prevDir != speedData[motorNum].dir)
-    {
-      speedData[motorNum].prevDir = speedData[motorNum].dir;
-      if (speedData[motorNum].dir == 0x1)
-        digitalWrite(PIN_DIR, HIGH);
-      else
-        digitalWrite(PIN_DIR, LOW);
-    }
+    // if (speedData[motorNum].prevDir != speedData[motorNum].dir)
+    // {
+    //   speedData[motorNum].prevDir = speedData[motorNum].dir;
+    //   if (speedData[motorNum].dir == 0x1)
+    //     digitalWrite(PIN_DIR, HIGH);
+    //   else
+    //     digitalWrite(PIN_DIR, LOW);
+    // }
+    if (speedData[motorNum].dir == 1)
+      digitalWrite(PIN_DIR, HIGH);
+    else if (speedData[motorNum].dir == -1)
+      digitalWrite(PIN_DIR, LOW);
 
     // --------------- When it is a final step ----------------
     if (step_count == speedData[motorNum].totalSteps)
@@ -1465,12 +1469,14 @@ void setup()
 {
 
   Serial.begin(115200);
+  // Serial.begin(250000);
+  // Serial.begin(9600);
   // mkMainOperation.init_interrupt();
   mkMainOperation.rebootTimers();
   mkCAN.initCAN();
   serialSendBuf.reset();
-  Serial.println("FROM ZOEROBOTICS CONTROLLER!");
 
+  // serialSendBuf.write("FROM ZOEROBOTICS CONTROLLER!");
   // MaxBytesAvailable=Serial.availableForWrite();
 
   // -------------- Define Pin layouts ----------
@@ -1523,7 +1529,7 @@ void setup()
   mkCommand.setCallBack_gen_speed_profile(mkVelProfile.gen_speed_profile);
   mkCommand.setCallBack_set_speed_profile(mkVelProfile.set_speed_profile);
   mkCommand.setCallBack_update_speed_only(mkVelProfile.update_speed_only);
-
+  Serial.println("FROM ZOEROBOTICS CONTROLLER!");
   // mkVelProfile.gen_speed_profile(0, 1650, 500, 600, 600);
   if (testTimer)
   {
@@ -1546,6 +1552,99 @@ void setup()
     previousMillis = millis();
   }
   // speedData[0].activated = true;
+}
+
+// loop_crc_command_test
+void loop_crc_command_test()
+{
+  ///////////////////////////////////////
+  // 1. Processing Message Packet from PC...
+  if (mkCommand.buflen < (BUFSIZE - 1))
+  {
+    mkCommand.getCommand_crc();
+  }
+  if (mkCommand.buflen)
+  {
+    mkCommand.process_commands();
+    mkCommand.buflen = (mkCommand.buflen - 1);
+    mkCommand.bufindr = (mkCommand.bufindr + 1) % BUFSIZE;
+  }
+  //////////////////////////////////////////
+  // Read Encoder Value[degree]
+  if (mkCAN.bReadSignal[0])
+    mkCAN.setReadEncoderData(0); // Encoder ID:0
+  if (mkCAN.readEncoderData(0))
+    mkMainOperation.reportEncoderValue(SC_GET_ENCODER, 1, mkCAN.encoderValue[0]);
+
+  if (mkCAN.bReadSignal[1])
+    mkCAN.setReadEncoderData(1); // Encoder ID:1
+  if (mkCAN.readEncoderData(1))
+    mkMainOperation.reportEncoderValue(SC_GET_ENCODER, 2, mkCAN.encoderValue[1]);
+
+  ///////////////////////////////////////////////
+  // 2. Processing Homing Sequences
+  if (posData[motorID].OperationMode == HOMING)
+  {
+    // +++ HIT HOME POSITION +++ //
+    bool bHomeSW = mkMainOperation.getHomeSWStatus();
+    if (bHomeSW)
+      ++sHomeSW; // Ignore false triger from electrical surges...
+    else
+      sHomeSW = 0;
+
+    // When the homeS/W is contacted...
+    if (bHomeSW && sHomeSW > 5 && mkMainOperation.statusHoming[motorID] == 0)
+    {
+      sHomeSW = 0;
+      // A. When the robot approched to the homeS/W and contacted,
+      //    stop the robot and report the status and then wait for next action
+      // if(posData[motorID].jobID==(SC_HOMING+2) ){
+      if (jobStatus.nSequence == 2)
+      {
+        mkMainOperation.statusHoming[motorID] = 1;
+        speedData[motorID].activated = false; // stop motor...
+        speedData[motorID].step_count = 0;
+        mkMainOperation.reportStatus();
+      }
+      // B. When the homeSW is already contacted at the begining and moving away from homeSW
+      //    Stop the robot and report and then wait for next action...
+      // else if(posData[motorID].jobID==(SC_HOMING+3)){
+      else if (jobStatus.nSequence == 3)
+      {
+        mkMainOperation.statusHoming[motorID] = 1;
+      }
+    }
+    else if (mkMainOperation.statusHoming[motorID] == 1 && bHomeSW == false)
+    {
+      mkMainOperation.statusHoming[motorID] = 2;
+      // gIRQ_TC_FLAG_DONE[motorID]=0;
+      speedData[motorID].activated = false; // stop motor...
+      posData[motorID].abs_step_pos = 0;
+      mkMainOperation.reportStatus();
+    }
+  } // End of Homing process
+
+  ///////////////////////////////////////////////////
+  if (mkMainOperation.bCupDropSignal && digitalRead(89))
+  {
+    mkMainOperation.bCupDropSignal = false;
+    Wait(mkMainOperation.cupSWDelayTime); // give small time to pass S/W ...
+    // writePluse(SSR_CUP_PWR.pIO, SSR_CUP_PWR.pin, HIGH); // OFF
+    digitalWrite(90, HIGH); // Trun off the cup motor
+    Wait(500);
+    mkMainOperation.reportACK(SC_DROP_CUP, 0);
+  }
+
+  ///////////////////////////////////////////////////
+  // 3. Processing sending message packets back to PC
+  if (serialSendBuf.buflen)
+  {
+    if (Serial.availableForWrite() > 120)
+    {
+      Serial.println(serialSendBuf.read());
+    }
+
+  } // -------------- End of ALL Processes-------------
 }
 // loop_motor_test
 void loop_motor_test()
@@ -1676,7 +1775,7 @@ void loop()
   // 3. Processing sending message packets back to PC
   if (serialSendBuf.buflen)
   {
-    if (Serial.availableForWrite() > 60)
+    if (Serial.availableForWrite() > 120)
     {
       Serial.println(serialSendBuf.read());
     }

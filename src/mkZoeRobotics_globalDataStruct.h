@@ -83,7 +83,8 @@ enum SEND_CMD
 enum OP_ERROR
 {
   ERROR = 100,
-  ERROR_MOVE_TOO_SMALL,
+  ERROR_MISSING_M = 150,
+  ERROR_MOVE_TOO_SMALL = 170,
 
   ERROR_JOINT_LIMIT = 200,
 
@@ -97,7 +98,6 @@ enum OP_ERROR
   ERROR_SET_SPIRAL = 600,
   ERROR_READ_ENCORDER = 700,
   ERROR_SERIAL_TIMEOUT = 800,
-  ERROR_MISSING_M = 900,
 
   ERROR_IK_NO_SOLUTION = 1000,
   ERROR_IK_NO_SOLUTION_INITAL,
@@ -247,7 +247,7 @@ typedef struct _KINEMATICS_DATA_
       return true;
     return false;
   }
-  void inline motionDone()
+  void motionDone()
   {
     indexMotionData = 0;
     activated = false;
@@ -263,7 +263,7 @@ typedef struct _KINEMATICS_DATA_
     pulseTick = false;
     pulseDown = false;
     step_count = 0;
-    memset((MOTIONDATA *)motionData, 0, sizeof(MOTIONDATA) * MAX_MOTIONDATA_SIZE);
+    // memset((MOTIONDATA *)motionData, 0, sizeof(MOTIONDATA) * MAX_MOTIONDATA_SIZE);
     dataSize = 0;
     totalSteps = 0;
   }

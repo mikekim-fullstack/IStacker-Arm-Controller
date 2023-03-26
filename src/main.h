@@ -195,12 +195,15 @@ public:
         TC_Stop(tc, channel);
         // if(n>=0 && n<4) reportStatus(n);
     }
-    void rebootTimers()
+    void rebootTimers(bool bReset = true)
     {
-        for (int i = 0; i < 4; i++)
+        if (bReset)
         {
-            speedData[i].reset();
-            posData[i].reset();
+            for (int i = 0; i < 4; i++)
+            {
+                speedData[i].reset();
+                posData[i].reset();
+            }
         }
         startTimer(0, TICK_PRESCALE, 1); // Z
         startTimer(1, TICK_PRESCALE, 1); // X
@@ -470,7 +473,7 @@ public:
         {
             elapsedTime = kinData[mID].elapsedTime * timeConversion;
         }
-        sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d ",
+        sprintf(tmpBuffer, "R%d G%d M%d P%d O%d S%d H%d T%d J%d N%d",
                 RC_STATUS,
                 codeValue,
                 mID,
@@ -500,16 +503,15 @@ public:
     // * Report All current absolute position of stepper motors
     void reportAllPosStatus(int respCode, int codeValue)
     {
-        char tmpBuffer[96] = {0};
-        sprintf(tmpBuffer, "R%d G%d A%d B%d C%d D%d J%d N%d",
+        char tmpBuffer[100] = {0};
+        sprintf(tmpBuffer, "R%d G%d A%d B%d C%d D%d J%d N%d\n",
                 respCode,
                 codeValue,
-                (int32_t)posData[0].abs_step_pos,
-                (int32_t)posData[1].abs_step_pos,
-                (int32_t)posData[2].abs_step_pos,
-                (int32_t)posData[3].abs_step_pos,
+                posData[0].abs_step_pos,
+                posData[1].abs_step_pos,
+                posData[2].abs_step_pos,
+                posData[3].abs_step_pos,
                 jobStatus.jobID, jobStatus.nSequence);
-
         serialSendBuf.write(tmpBuffer);
         // mkSerial.println(tmpBuffer); //for serial notification
     }
@@ -547,7 +549,8 @@ public:
         //     // sprintf(str, "starttime=%dms, endTime=%d", kinData[motorID].elapsedTime *0.001, kinData[motorID].endTime);
         //     // serialSendBuf.write(str);
         // }
-
+        stopTimer(nAxis);
+        stopTimer(nAxis + 4);
         if (posData[nAxis].OperationMode == MOVING)
         {
             //--isAnyMotion;
@@ -570,12 +573,12 @@ public:
     {
         for (int i = 0; i < 4; i++)
         {
-            elapsedTime[i] = millis();
+            ; // elapsedTime[i] = millis();
         }
     }
     void resetElapsedTime(int ch)
     {
-        elapsedTime[ch] = millis();
+        // elapsedTime[ch] = millis();
     }
 
     void controlDropCup(int delayTime)

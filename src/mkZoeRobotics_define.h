@@ -102,10 +102,10 @@
 #endif
 
 #ifndef BUFSIZE
-#define BUFSIZE 24
+#define BUFSIZE 24 // number of command ...
 #endif
 #ifndef MAX_CMD_SIZE
-#define MAX_CMD_SIZE 96
+#define MAX_CMD_SIZE 160 // number of charactor for a command ...
 #endif
 
 #define MIN_DELAY_COUNT_CN 55

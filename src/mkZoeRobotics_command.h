@@ -93,11 +93,13 @@ public:
   char tmpBuffer[128];
   int buflen = 0;
 
-  uint8_t serial_char;
-  int serial_count = 0;
-  bool comment_mode = false;
-  int bufindr = 0;
-  int bufindw = 0;
+  volatile uint8_t serial_char;
+  volatile int serial_count = 0;
+  volatile uint8_t start_mode = 0;
+  volatile uint8_t data_count = 0;
+  int data_len = 0;
+  uint8_t bufindr = 0;
+  uint8_t bufindw = 0;
   char *strchr_pointer; // just a pointer to find chars in the command string like X, Y, Z, E, etc
 
   enum AxisEnum
@@ -202,6 +204,8 @@ public:
   }
   int32_t getAbsStepPos();
 
+  void getCommand_crc();
+  void process_commands_crc();
   void getCommand();
   void process_commands();
   void getStartMove(int axis_sel);

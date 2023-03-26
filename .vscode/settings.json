@@ -3,5 +3,6 @@
         "*.scss": "scss",
         "*.yaml": "arduino-output",
         "type_traits": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
