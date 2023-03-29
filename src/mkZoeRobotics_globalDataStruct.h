@@ -50,7 +50,9 @@ enum RESP_CMD
   RC_STATUS_SPRIAL,
   RC_UPDATE_MOTION,
   RC_STATUS_JOB_DONE,
-  RC_ENCODER_VALUE
+  RC_ACK_STOP,
+  RC_ENCODER_VALUE,
+  RC_ORDER_DONE
 };
 enum SEND_CMD
 {
@@ -71,6 +73,8 @@ enum SEND_CMD
   SC_ORDER = 30,
   SC_DROP_CUP,
   SC_STOP = 40,
+  SC_PAUSE,
+  SC_RESUME,
   SC_ASK_MOVE = 50,
   SC_ASK_CIRCLE,
   SC_ASK_HOMING,
@@ -78,7 +82,8 @@ enum SEND_CMD
   SC_TIME_DELAY_MC,
   SC_REBOOT = 100,
   SC_POWER,
-  SC_Z_BRAKE
+  SC_Z_BRAKE,
+  SC_CANCEL_JOB = 999,
 };
 enum OP_ERROR
 {
@@ -152,6 +157,7 @@ enum SEL_MODE
 typedef struct _speedRampData
 {
   volatile bool activated = false;
+  volatile bool stopActivated = false;
   volatile bool pulseTick = false;
   volatile bool pulseDown = false;
   float rest = 0;
@@ -181,6 +187,7 @@ typedef struct _speedRampData
   void reset()
   {
     activated = false;
+    stopActivated = false;
     // pulseTick=false;
     // pulseDown=false;
     rest = 0;
@@ -219,6 +226,7 @@ typedef struct _KINEMATICS_DATA_
   volatile uint16_t step_sum = 0;
   volatile int8_t prevDir = 0;
   volatile int stepdir_sum = 0;
+  volatile bool stopActivated = false;
 
   int dataSize = 0;
   // int32_t finalSumSteps = 0;
@@ -263,9 +271,10 @@ typedef struct _KINEMATICS_DATA_
     pulseTick = false;
     pulseDown = false;
     step_count = 0;
-    // memset((MOTIONDATA *)motionData, 0, sizeof(MOTIONDATA) * MAX_MOTIONDATA_SIZE);
+    memset((MOTIONDATA *)motionData, 0, sizeof(MOTIONDATA) * MAX_MOTIONDATA_SIZE);
     dataSize = 0;
     totalSteps = 0;
+    stopActivated = false;
   }
 } KIN_DATA;
 

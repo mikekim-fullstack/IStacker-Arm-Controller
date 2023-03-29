@@ -48,7 +48,7 @@ extern SEL_MODE motionMode;
 //----------------------------------
 
 int arrivingdatabyte = 0;
-char str[128];
+static char str[128];
 int motorID = 0;
 
 // static volatile bool bCupDropSignal = false;
@@ -386,7 +386,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       }
     }
     // When all motion data are excuted, exit.
-    if (kinData[motorNum].step_sum == kinData[motorNum].totalSteps)
+    if (kinData[motorNum].stopActivated || (kinData[motorNum].step_sum == kinData[motorNum].totalSteps))
     {
       // sprintf(str, "End(%d) -  step_sum=%d, index=%d, abs_step_pos=%d, stepdir_sum=%d", motorNum, kinData[motorNum].step_sum, kinData[motorNum].indexMotionData, posData[motorNum].abs_step_pos, kinData[motorNum].stepdir_sum);
       // serialSendBuf.write(str);
@@ -417,7 +417,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
   }
   /////////////////////////////////////////////////////////////
   // ** Joint Motion ** //
-  if (speedData[motorNum].activated)
+  else if (speedData[motorNum].activated)
   {
     volatile uint32_t step_count = speedData[motorNum].step_count;
     // --------------------Motor Direction -----------------
@@ -435,7 +435,7 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
       digitalWrite(PIN_DIR, LOW);
 
     // --------------- When it is a final step ----------------
-    if (step_count == speedData[motorNum].totalSteps)
+    if (speedData[motorNum].stopActivated || (step_count == speedData[motorNum].totalSteps))
     {
       speedData[motorNum].activated = false;
       // speedData[motorNum].endTime = millis();
@@ -538,13 +538,17 @@ volatile void inline calculatePulse(Tc *tc, uint8_t tcChannel, uint8_t motorNum,
 
     ////////////////////////////////////////////
   }
+  else
+  {
+    tc->TC_CHANNEL[tcChannel].TC_RC = 656250;
+  }
 }
 
 volatile void inline pulse10mmsTick(Tc *tc, uint8_t tcChannel, uint8_t motorNum, uint16_t PIN_PULSE, uint8_t PIN_DIR)
 {
   tc->TC_CHANNEL[tcChannel].TC_SR;
 
-  if (kinData[motorNum].activated == true)
+  if (kinData[motorNum].activated)
   {
 
     volatile int dir = kinData[motorNum].motionData[kinData[motorNum].indexMotionData].dir;
@@ -1459,7 +1463,7 @@ unsigned long interval = 1500UL;
 bool dir = true;
 bool start = false;
 static int16_t sHomeSW = 0;
-static bool testTimer = true;
+static bool testTimer = false;
 CIRCLEProfile circleProfile;
 SPIRALProfile spiralProfile;
 LINEARProfile linearProfile;

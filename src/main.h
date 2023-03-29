@@ -195,16 +195,26 @@ public:
         TC_Stop(tc, channel);
         // if(n>=0 && n<4) reportStatus(n);
     }
+    void resetAllData()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            speedData[i].reset();
+            posData[i].reset();
+            kinData[i].reset();
+        }
+    }
     void rebootTimers(bool bReset = true)
     {
-        if (bReset)
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                speedData[i].reset();
-                posData[i].reset();
-            }
-        }
+        // if (bReset)
+        // {
+        //     for (int i = 0; i < 4; i++)
+        //     {
+        //         speedData[i].reset();
+        //         // posData[i].reset();
+        //         kinData[i].reset();
+        //     }
+        // }
         startTimer(0, TICK_PRESCALE, 1); // Z
         startTimer(1, TICK_PRESCALE, 1); // X
         startTimer(2, TICK_PRESCALE, 1); // Q
@@ -248,9 +258,21 @@ public:
     {
         for (int i = 0; i < MAX_MOTOR_NUM; i++)
         {
-            stopTimer(i);
-            speedData[i].reset();
-            kinData[i].reset();
+            kinData[i].stopActivated = true;
+            speedData[i].stopActivated = true;
+            // if (motionMode == MODE_JOINT)
+            // speedData[i].reset();
+            // else if (motionMode == MODE_CARTESIAN)
+            // kinData[i].reset();
+
+            // stopTimer(i);
+            // stopTimer(i + 4);
+            // if (posData[i].OperationMode == MOVING)
+            // {
+            //     //--isAnyMotion;
+            //     posData[i].OperationMode = JOB_DONE;
+            //     reportStatus(posData[i].CMDCode, i);
+            // }
         }
     }
     void stopMotion(int id)
@@ -436,6 +458,19 @@ public:
                 RC_ACK, codeValue, mID, jobStatus.jobID, jobStatus.nSequence, errorCode);
         serialSendBuf.write(tmpBuffer);
     }
+    void reportACKStop(int codeValue)
+    {
+        char tmpBuffer[100] = {0};
+        sprintf(tmpBuffer, "R%d G%d A%d B%d C%d D%d J%d N%d",
+                RC_ACK_STOP,
+                codeValue,
+                posData[0].abs_step_pos,
+                posData[1].abs_step_pos,
+                posData[2].abs_step_pos,
+                posData[3].abs_step_pos,
+                jobStatus.jobID, jobStatus.nSequence);
+        serialSendBuf.write(tmpBuffer);
+    }
     void reportStatus()
     {
         char tmpBuffer[96] = {0};
@@ -504,7 +539,7 @@ public:
     void reportAllPosStatus(int respCode, int codeValue)
     {
         char tmpBuffer[100] = {0};
-        sprintf(tmpBuffer, "R%d G%d A%d B%d C%d D%d J%d N%d\n",
+        sprintf(tmpBuffer, "R%d G%d A%d B%d C%d D%d J%d N%d",
                 respCode,
                 codeValue,
                 posData[0].abs_step_pos,
@@ -535,8 +570,10 @@ public:
     void processFinishingMove(int nAxis)
     {
 
-        speedData[nAxis].reset();
-        kinData[nAxis].reset();
+        if (motionMode == MODE_JOINT)
+            speedData[nAxis].reset();
+        else if (motionMode == MODE_CARTESIAN)
+            kinData[nAxis].reset();
 
         // if (motionMode == MODE_JOINT)
         // {

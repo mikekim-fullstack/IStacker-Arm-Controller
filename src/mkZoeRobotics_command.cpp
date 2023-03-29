@@ -26,7 +26,9 @@ extern unsigned long elapsedTime[MAX_MOTOR_NUM];
 // extern  int8_t activatedEE;
 // extern int8_t isAnyMotion;
 extern JOBSTATUS jobStatus;
-static char str[160];
+static char str[128];
+
+/*
 static const unsigned short CRC16_XMODEM_TABLE[256] =
     { // CRC-16/XMODEM TABLE
         0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
@@ -69,6 +71,7 @@ unsigned short calculateCRC16Xmodem(const char *buf, int len)
     crc = (crc << 8) ^ CRC16_XMODEM_TABLE[((crc >> 8) ^ *(char *)buf++) & 0x00FF];
   return crc;
 }
+
 // ... Frame structure: [0xFF frame_length_N data1 data2 .. dataN HCRC LCRC] ...
 // Data length = frame_length_N (including  CRC)
 void MKCommand::process_commands_crc()
@@ -160,6 +163,7 @@ void MKCommand::getCommand_crc()
     }
   }
 }
+*/
 void MKCommand::getCommand()
 {
   if (buflen >= (BUFSIZE - 2))
@@ -297,7 +301,7 @@ void MKCommand::process_commands()
     switch (codeValue)
     {
     case SC_MOVE: // G0: Start Move
-
+      mkMainOperation.rebootTimers(false);
       if (code_seen('A'))
       {
         selectedAxis = (int)code_value();
@@ -307,7 +311,7 @@ void MKCommand::process_commands()
       mkMainOperation.reportACK(codeValue, selectedAxis);
       return;
     case SC_SET_SPEED: // G1: Set Speed Profile
-      mkMainOperation.rebootTimers(false);
+      // mkMainOperation.rebootTimers(false);
       if (code_seen('M'))
       {
         motorID = (uint32_t)code_value(); //+ (axis_relative_modes[i] || relative_mode)*current_position[i];
@@ -316,7 +320,7 @@ void MKCommand::process_commands()
       {
         jobStatus.jobID = (int)code_value();
       }
-      mkMainOperation.resetElapsedTime(motorID);
+      // mkMainOperation.resetElapsedTime(motorID);
       // if(posData[motorID].OperationMode !=JOB_DONE)
       //   return reportACK(codeValue, motorID, jobID, MOVING);//reportStatus(codeValue, motorID);
       posData[motorID].OperationMode = SET_SPEED;
@@ -331,7 +335,7 @@ void MKCommand::process_commands()
       return;
     case SC_GEN_EELINEAR:
     {
-      mkMainOperation.rebootTimers(false);
+      // mkMainOperation.rebootTimers(false);
       // serialSendBuf.write("linear: start");
       int rev = get_gen_linear_motion_profile();
       // int rev = 1;
@@ -341,7 +345,7 @@ void MKCommand::process_commands()
     }
     case SC_GEN_EEROTATION:
     {
-      mkMainOperation.rebootTimers(false);
+      // mkMainOperation.rebootTimers(false);
       int rev = get_gen_EErotation_motion_profile();
       mkMainOperation.reportGenKinDataStatus(RC_STATUS_EEROTATION, SC_GEN_EEROTATION, rev);
 
@@ -349,14 +353,14 @@ void MKCommand::process_commands()
     }
     case SC_GEN_CIRCLE:
     {
-      mkMainOperation.rebootTimers(false);
+      // mkMainOperation.rebootTimers(false);
       int rev = get_gen_circular_motion_profile();
       mkMainOperation.reportGenKinDataStatus(RC_STATUS_CIRCLE, SC_GEN_CIRCLE, rev);
       return;
     }
     case SC_GEN_SPIRAL:
     {
-      mkMainOperation.rebootTimers(false);
+      // mkMainOperation.rebootTimers(false);
       int rev = get_gen_spiral_motion_profile();
       mkMainOperation.reportGenKinDataStatus(RC_STATUS_SPRIAL, SC_GEN_SPIRAL, rev);
       return;
@@ -381,13 +385,14 @@ void MKCommand::process_commands()
       mkMainOperation.reportACK(codeValue, 0);
       return;
     case SC_STOP: // G4: STOP immediatelty
+    {
       mkMainOperation.stopMotionAll();
-      mkMainOperation.rebootTimers(false);
-      posData[motorID].OperationMode = JOB_DONE;
-      mkMainOperation.reportACK(codeValue, 0);
+      // posData[motorID].OperationMode = JOB_DONE;
+      // mkMainOperation.reportACKStop(codeValue);
       return;
+    }
     case SC_TIME_DELAY_MC:
-      mkMainOperation.rebootTimers(false);
+      // mkMainOperation.rebootTimers(false);
       if (code_seen('M'))
       {
         int ms = (uint32_t)code_value();
@@ -473,7 +478,7 @@ void MKCommand::process_commands()
       mkMainOperation.reportStatus(codeValue, motorID);
       return;
     case SC_STATUS_ALL_POS:
-
+      // Serial.println("-reportAllPosStatus");
       mkMainOperation.reportAllPosStatus(RC_STATUS_ALL_POS, codeValue);
       return;
     case SC_UPDATE_MOTION:

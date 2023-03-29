@@ -23,6 +23,7 @@ static double STEP2DIST[4] = {1.0 / DIST2STEP[0], 1.0 / DIST2STEP[1], 1.0 / DIST
 
 extern POSData posData[4];
 
+static char str[128];
 ///////////////////////////////////////////////////
 // Initializing static member variable: motorParams for static member functions...
 /**
@@ -350,7 +351,7 @@ int MKVelProfile::calibrateDiscretizedData(int nAxis, double totalDistance[],
   {
     startPos[3] = endPos[3] = 0;
   }
-  char str[128];
+  // char str[128];
   bool debug = false;
 
   // test
@@ -529,16 +530,18 @@ int MKVelProfile::calibrateDiscretizedData(int nAxis, double totalDistance[],
     serialSendBuf.write(str);
   }
 
-    return 1;
+  return 1;
 }
 
 void MKVelProfile::set_speed_profile(SPEEDProfile &speedProfile)
 {
+
   int num = motorID;
   motionMode = MODE_JOINT;
-  speedData[num].activated = false;
-  speedData[num].elapsedTime = 0;
-  speedData[num].prevDir = 0;
+  speedData[num].reset();
+  // speedData[num].activated = false;
+  // speedData[num].elapsedTime = 0;
+  // speedData[num].prevDir = 0;
 
   speedData[num].totalSteps = speedProfile.steps;
   speedData[num].Na = speedProfile.Na;
@@ -577,9 +580,10 @@ void MKVelProfile::gen_speed_profile(uint16_t num, double distance, double speed
   // double distance = 0.025 * steps; // [mm]
   //  activatedEE = -1;
   motionMode = MODE_JOINT;
-  speedData[num].activated = false;
-  speedData[num].prevDir = 0;
-  speedData[num].elapsedTime = 0;
+  speedData[num].reset();
+  // speedData[num].activated = false;
+  // speedData[num].prevDir = 0;
+  // speedData[num].elapsedTime = 0;
   int dir = SIGN(distance);
   uint32_t steps = lround(fabs(distance) * motorParams[num].DIST2STEP);
 
@@ -681,11 +685,25 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
   double rest[4] = {0};
 
   int nAxis = 4;
-  double diffDist[3];
-  diffDist[0] = finalEEPos[0] - initialEEPos[0];
-  diffDist[1] = finalEEPos[1] - initialEEPos[1];
-  diffDist[2] = finalEEPos[2] - initialEEPos[2];
-  double distEE = sqrt(diffDist[0] * diffDist[0] + diffDist[1] * diffDist[1] + diffDist[2] * diffDist[2]);
+  double totalDiff2 = 0;
+  for (int i = 0; i < 3; i++)
+  {
+    double diff = (finalEEPos[i] - initialEEPos[i]);
+    if (i == 2 && fabs(diff) < 0.1)
+    {
+      nAxis = 3;
+    }
+    diff *= diff;
+    totalDiff2 += diff;
+  }
+
+  double distEE = sqrt(totalDiff2);
+
+  // double diffDist[3];
+  // diffDist[0] = finalEEPos[0] - initialEEPos[0];
+  // diffDist[1] = finalEEPos[1] - initialEEPos[1];
+  // diffDist[2] = finalEEPos[2] - initialEEPos[2];
+  // double distEE = sqrt(diffDist[0] * diffDist[0] + diffDist[1] * diffDist[1] + diffDist[2] * diffDist[2]);
 
   ////////////////////////////////////////////////////////
   // ++ deltaT_Lx is duration when EE move 1mm ++
@@ -723,9 +741,10 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
     deltaT = distEE / 5000.0;
   }
 
-  if (fabs(diffDist[2]) < 0.01)
-    nAxis = 3;
-
+  // if (fabs(diffDist[2]) < 0.1)
+  // {
+  //   nAxis = 3;
+  // }
   // if (distEE < 1.0 && fabs(diffDist[2]) < 0.01)
   // {
   //   return ERROR_MOVE_TOO_SMALL; // too small movement...
@@ -745,7 +764,8 @@ int MKVelProfile::gen_linear_profile(LINEARProfile &linearProfile)
 
   double currT = 0.0;
   //////////////////////////////////
-
+  // sprintf(str, "distEE:%1.2f, deltaT=%1.5f", distEE, deltaT);
+  // serialSendBuf.write(str);
   ////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////////////
@@ -832,9 +852,9 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
 
   motionMode = MODE_CARTESIAN;
   ///////////////////////////////////
-  kinData[0].reset();
-  kinData[1].reset();
-  kinData[2].reset();
+  // kinData[0].reset();
+  // kinData[1].reset();
+  // kinData[2].reset();
 
   int nAxis = 3;
   double aCoEE[4], curEETh = 0;
@@ -1138,6 +1158,10 @@ int MKVelProfile::gen_EErotation_profile(EEROTATIONProfile &eeRotationProfile)
 int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
 {
 
+  // kinData[0].reset();
+  // kinData[1].reset();
+  // kinData[2].reset();
+  // kinData[3].reset();
   motionMode = MODE_CARTESIAN;
   int nAxis = 3;
   double rest[4] = {0};
@@ -1243,6 +1267,11 @@ int MKVelProfile::gen_circle_profile(CIRCLEProfile &circleProfile)
 ///////////////////////////////////////////////////////////////////
 int MKVelProfile::gen_spiral_profile(SPIRALProfile &spiralProfile)
 {
+  // kinData[0].reset();
+  // kinData[1].reset();
+  // kinData[2].reset();
+  // kinData[3].reset();
+
   motionMode = MODE_CARTESIAN;
   int nAxis = 4;
   // ++ deltaT_Lx is duration when EE rotate 1deg ++
