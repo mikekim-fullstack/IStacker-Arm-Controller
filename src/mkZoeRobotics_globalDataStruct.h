@@ -87,9 +87,10 @@ enum SEND_CMD
 };
 enum OP_ERROR
 {
+  // ...ERROR 100s: input command corruption errors...
   ERROR = 100,
   ERROR_MISSING_M = 150,
-  ERROR_MOVE_TOO_SMALL = 170,
+  //..........................
 
   ERROR_JOINT_LIMIT = 200,
 
@@ -97,6 +98,7 @@ enum OP_ERROR
   ERROR_SET_SPEED_TOO_SLOW,
   ERROR_SET_SPEED_TOO_FAST,
   ERROR_SET_SPEED_TOO_FAST_CN,
+  ERROR_MOVE_TOO_SMALL,
 
   ERROR_SET_LINEAR = 400,
   ERROR_SET_CIRCLE = 500,
